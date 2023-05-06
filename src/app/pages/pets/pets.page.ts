@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { PetPage } from '../pet/pet.page';
-import { Pet, PetSpecies } from '../types/types';
+import { Pet, PetSpecies } from '../../types/types';
 import { AddPetPage } from '../add-pet/add-pet.page';
 
 @Component({

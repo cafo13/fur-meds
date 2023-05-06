@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
-import { Pet, PetSpecies } from '../types/types';
-import { PhotoService } from '../services/photo.service';
+import { Pet, PetSpecies } from '../../types/types';
+import { PhotoService } from '../../services/photo.service';
 
 @Component({
   selector: 'app-add-pet',
