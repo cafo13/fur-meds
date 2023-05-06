@@ -20,12 +20,15 @@
           src="{{ pet.image }}"
         />
         <ion-card-header>
-          <ion-card-title>{{ pet.name }}</ion-card-title>
+          <ion-card-title>{{ pet.name }} ({{ pet.species }})</ion-card-title>
         </ion-card-header>
       </ion-card>
     </ion-item>
   </ion-list>
-  <ion-fab-button>
-    <ion-icon name="add"></ion-icon>
-  </ion-fab-button>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="addPet()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

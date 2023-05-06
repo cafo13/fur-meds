@@ -17,12 +17,20 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-item>
-    <ion-title>Medicines</ion-title>
-    <ion-card *ngFor="let medicine of this.pet?.medicines"></ion-card>
-  </ion-item>
-  <ion-item>
-    <ion-title>Foods</ion-title>
-    <ion-card *ngFor="let food of this.pet?.foods"></ion-card>
-  </ion-item>
+  <ion-list>
+    <ion-item>
+      <ion-title>Medicines</ion-title>
+      <ion-card *ngFor="let medicine of this.pet?.medicines"></ion-card>
+    </ion-item>
+    <ion-item>
+      <ion-title>Foods</ion-title>
+      <ion-card *ngFor="let food of this.pet?.foods"></ion-card>
+    </ion-item>
+    <ion-item>
+      <ion-title>Vet Appointments</ion-title>
+      <ion-card
+        *ngFor="let appointment of this.pet?.vetAppointments"
+      ></ion-card>
+    </ion-item>
+  </ion-list>
 </ion-content>
