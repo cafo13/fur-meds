@@ -1,0 +1,28 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+    <ion-title>{{ this.pet?.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="save()" [strong]="true">Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ this.pet?.name }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-item>
+    <ion-title>Medicines</ion-title>
+    <ion-card *ngFor="let medicine of this.pet?.medicines"></ion-card>
+  </ion-item>
+  <ion-item>
+    <ion-title>Foods</ion-title>
+    <ion-card *ngFor="let food of this.pet?.foods"></ion-card>
+  </ion-item>
+</ion-content>
