@@ -3,13 +3,9 @@ export enum PetSpecies {
   DOG = 'Dog',
 }
 
-export type PetMedicineFrequencyTime = {
-  hour: number;
-  minute: number;
-};
-
 export type PetMedicineFrequency = {
-  time: PetMedicineFrequencyTime;
+  uuid: string;
+  time: string;
   everyDays: number;
 };
 
@@ -25,11 +21,6 @@ export type PetFood = {
   name: string;
 };
 
-export type PetVetAppointment = {
-  uuid: string;
-  name: string;
-};
-
 export type Pet = {
   uuid: string;
   name: string;
@@ -37,5 +28,4 @@ export type Pet = {
   image?: string;
   medicines?: PetMedicine[];
   foods?: PetFood[];
-  vetAppointments?: PetVetAppointment[];
 };

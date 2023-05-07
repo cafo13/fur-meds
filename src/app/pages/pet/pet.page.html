@@ -76,36 +76,4 @@
       </ion-fab>
     </ion-card-content>
   </ion-card>
-
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title
-        >Vet Appointments <ion-icon name="fitness-sharp"></ion-icon
-      ></ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-list [inset]="true">
-        <ion-item *ngFor="let appointment of this.pet?.vetAppointments">
-          <ion-icon
-            slot="start"
-            name="create-sharp"
-            (click)="updateVetAppointment(appointment)"
-          ></ion-icon>
-          <p (click)="updateVetAppointment(appointment)">
-            {{ appointment.name }}
-          </p>
-          <ion-icon
-            slot="end"
-            name="trash-sharp"
-            (click)="deleteVetAppointment(appointment)"
-          ></ion-icon>
-        </ion-item>
-      </ion-list>
-      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button size="small" (click)="addVetAppointment()">
-          <ion-icon name="add"></ion-icon>
-        </ion-fab-button>
-      </ion-fab>
-    </ion-card-content>
-  </ion-card>
 </ion-content>

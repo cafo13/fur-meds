@@ -2,15 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { AlertController, IonicModule, ModalController } from '@ionic/angular';
 
-import {
-  Pet,
-  PetFood,
-  PetMedicine,
-  PetVetAppointment,
-} from '../../types/types';
+import { Pet, PetFood, PetMedicine } from '../../types/types';
 import { SetMedicinePage } from '../set-medicine/set-medicine.page';
 import { AddFoodPage } from '../add-food/add-food.page';
-import { AddVetAppointmentPage } from '../add-vet-appointment/add-vet-appointment.page';
 
 @Component({
   selector: 'app-pet',
@@ -74,23 +68,19 @@ export class PetPage {
           role: 'confirm',
           handler: () => {
             console.log('Successfully deleted medicine ' + medicine.uuid);
-            this.deletePetMedicineItem(medicine.uuid);
+            if (!this.pet || !this.pet.medicines) {
+              return;
+            }
+            this.pet.medicines.forEach((existingMedicine, index) => {
+              if (existingMedicine.uuid === medicine.uuid) {
+                this.pet?.medicines?.splice(index, 1);
+              }
+            });
           },
         },
       ],
     });
     alert.present();
-  }
-
-  deletePetMedicineItem(uuid: string) {
-    if (!this.pet || !this.pet.medicines) {
-      return;
-    }
-    this.pet.medicines.forEach((medicine, index) => {
-      if (medicine.uuid === uuid) {
-        this.pet?.medicines?.splice(index, 1);
-      }
-    });
   }
 
   async addFood() {
@@ -187,115 +177,6 @@ export class PetPage {
     this.pet.foods.forEach((food, index) => {
       if (food.uuid === uuid) {
         this.pet?.foods?.splice(index, 1);
-      }
-    });
-  }
-
-  async addVetAppointment() {
-    console.log('opening add add medicine modal');
-
-    const modal = await this.modalCtrl.create({
-      component: AddVetAppointmentPage,
-    });
-    modal.present();
-
-    const { data, role } = await modal.onWillDismiss();
-
-    if (role !== 'cancel') {
-      if (this.pet && !this.pet?.vetAppointments) {
-        this.pet.vetAppointments = [];
-      }
-      this.pet?.vetAppointments?.push(data);
-    }
-  }
-
-  async updateVetAppointment(vetAppointment: PetVetAppointment) {
-    console.log('updating vet appointment ' + vetAppointment.uuid);
-
-    const alert = await this.alertCtrl.create({
-      inputs: [
-        {
-          placeholder: 'Name',
-          value: vetAppointment.name,
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            console.log(
-              'Cancelled updating vet appointment ' + vetAppointment.uuid
-            );
-          },
-        },
-        {
-          text: 'Save',
-          role: 'confirm',
-          handler: (value: any) => {
-            console.log(
-              'Successfully updated vet appointment ' + vetAppointment.uuid
-            );
-            vetAppointment.name = value[0];
-            this.updatePetVetAppointmentItem(vetAppointment);
-          },
-        },
-      ],
-    });
-    alert.present();
-  }
-
-  updatePetVetAppointmentItem(updatedVetappointment: PetVetAppointment): void {
-    if (!this.pet || !this.pet.vetAppointments) {
-      return;
-    }
-    for (let vetappointment of this.pet.vetAppointments) {
-      if (vetappointment.uuid === updatedVetappointment.uuid) {
-        vetappointment.name = updatedVetappointment.name;
-      }
-    }
-  }
-
-  async deleteVetAppointment(vetappointment: PetVetAppointment) {
-    console.log('deleting vet appointment ' + vetappointment.uuid);
-
-    const alert = await this.alertCtrl.create({
-      message:
-        "Are you sure you want to delete the vet appointment '" +
-        vetappointment.name +
-        "'?",
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            console.log(
-              'Cancelled deleting vet appointment ' + vetappointment.uuid
-            );
-          },
-        },
-        {
-          text: 'Delete',
-          role: 'confirm',
-          handler: () => {
-            console.log(
-              'Successfully deleted vet appointment ' + vetappointment.uuid
-            );
-            this.deletePetVetAppointmentItem(vetappointment.uuid);
-          },
-        },
-      ],
-    });
-    alert.present();
-  }
-
-  deletePetVetAppointmentItem(uuid: string) {
-    if (!this.pet || !this.pet.vetAppointments) {
-      return;
-    }
-    this.pet.vetAppointments.forEach((vetAppointment, index) => {
-      if (vetAppointment.uuid === uuid) {
-        this.pet?.vetAppointments?.splice(index, 1);
       }
     });
   }

@@ -60,12 +60,15 @@ export class SetMedicinePage implements OnInit {
     const alert = await this.alertCtrl.create({
       inputs: [
         {
-          label: 'Time',
-          type: 'number',
+          name: 'time',
+          value: dataForUpdate?.time,
+          type: 'time',
         },
         {
-          label: 'Every X Days',
+          name: 'everyDays',
+          value: dataForUpdate?.everyDays,
           type: 'number',
+          min: 0,
         },
       ],
       buttons: [
@@ -79,21 +82,59 @@ export class SetMedicinePage implements OnInit {
         {
           text: 'Save',
           role: 'confirm',
-          handler: (value: any) => {
-            if (this.pet && !this.pet?.medicines) {
-              this.pet.medicines = [];
-            }
-            if (mode === 'Update' && this.pet && this.pet.medicines) {
-              for (let medicine of this.pet.medicines) {
-                if (medicine.uuid === data.uuid) {
-                  medicine = data;
+          handler: (values: any) => {
+            const frequency: PetMedicineFrequency = {
+              uuid: dataForUpdate ? dataForUpdate.uuid : uuidv4(),
+              time: values['time'],
+              everyDays: values['everyDays'],
+            };
+            if (mode === 'Update') {
+              for (let existingFrequency of this.medicine.frequencies) {
+                if (frequency.uuid === dataForUpdate?.uuid) {
+                  existingFrequency.time = frequency.time;
+                  existingFrequency.everyDays = frequency.everyDays;
                 }
               }
             } else {
-              this.pet?.medicines?.push(data);
+              this.medicine.frequencies.push(frequency);
             }
 
             console.log('Successfully set frequency (mode: ' + mode + ')');
+          },
+        },
+      ],
+    });
+    alert.present();
+  }
+
+  async deleteFrequency(frequency: PetMedicineFrequency) {
+    console.log('deleting frequency ' + frequency.uuid);
+
+    const alert = await this.alertCtrl.create({
+      message:
+        "Are you sure you want to delete the frequency '" +
+        frequency.time +
+        "' every " +
+        frequency.everyDays +
+        'days?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancelled deleting frequency ' + frequency.uuid);
+          },
+        },
+        {
+          text: 'Delete',
+          role: 'confirm',
+          handler: () => {
+            this.medicine.frequencies.forEach((existingFrequency, index) => {
+              if (frequency.uuid === frequency.uuid) {
+                this.medicine.frequencies.splice(index, 1);
+              }
+            });
+            console.log('Successfully deleted frequency ' + frequency.uuid);
           },
         },
       ],
