@@ -19,16 +19,28 @@
 
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Medicines</ion-card-title>
+      <ion-card-title
+        >Medicines <ion-icon name="flask-sharp"></ion-icon
+      ></ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-list [inset]="true">
         <ion-item *ngFor="let medicine of this.pet?.medicines">
-          <p>{{ medicine.name }}</p>
+          <ion-icon
+            slot="start"
+            name="create-sharp"
+            (click)="setMedicine(medicine)"
+          ></ion-icon>
+          <p (click)="setMedicine(medicine)">{{ medicine.name }}</p>
+          <ion-icon
+            slot="end"
+            name="trash-sharp"
+            (click)="deleteMedicine(medicine)"
+          ></ion-icon>
         </ion-item>
       </ion-list>
       <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button size="small" (click)="addMedicine()">
+        <ion-fab-button size="small" (click)="setMedicine()">
           <ion-icon name="add"></ion-icon>
         </ion-fab-button>
       </ion-fab>
@@ -37,12 +49,24 @@
 
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Foods</ion-card-title>
+      <ion-card-title
+        >Foods <ion-icon name="restaurant-sharp"></ion-icon
+      ></ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-list [inset]="true">
         <ion-item *ngFor="let food of this.pet?.foods">
-          <p>{{ food.name }}</p>
+          <ion-icon
+            slot="start"
+            name="create-sharp"
+            (click)="updateFood(food)"
+          ></ion-icon>
+          <p (click)="updateFood(food)">{{ food.name }}</p>
+          <ion-icon
+            slot="end"
+            name="trash-sharp"
+            (click)="deleteFood(food)"
+          ></ion-icon>
         </ion-item>
       </ion-list>
       <ion-fab vertical="bottom" horizontal="end" slot="fixed">
@@ -55,12 +79,26 @@
 
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Vet Appointments</ion-card-title>
+      <ion-card-title
+        >Vet Appointments <ion-icon name="fitness-sharp"></ion-icon
+      ></ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-list [inset]="true">
         <ion-item *ngFor="let appointment of this.pet?.vetAppointments">
-          <p>{{ appointment.name }}</p>
+          <ion-icon
+            slot="start"
+            name="create-sharp"
+            (click)="updateVetAppointment(appointment)"
+          ></ion-icon>
+          <p (click)="updateVetAppointment(appointment)">
+            {{ appointment.name }}
+          </p>
+          <ion-icon
+            slot="end"
+            name="trash-sharp"
+            (click)="deleteVetAppointment(appointment)"
+          ></ion-icon>
         </ion-item>
       </ion-list>
       <ion-fab vertical="bottom" horizontal="end" slot="fixed">

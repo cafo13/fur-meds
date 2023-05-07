@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { AddMedicinePage } from './add-medicine.page';
+import { SetMedicinePage } from './set-medicine.page';
 
-describe('AddPetPage', () => {
-  let component: AddMedicinePage;
-  let fixture: ComponentFixture<AddMedicinePage>;
+describe('SetMedicinePage', () => {
+  let component: SetMedicinePage;
+  let fixture: ComponentFixture<SetMedicinePage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddMedicinePage, IonicModule],
+      imports: [SetMedicinePage, IonicModule],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AddMedicinePage);
+    fixture = TestBed.createComponent(SetMedicinePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

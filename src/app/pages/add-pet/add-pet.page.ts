@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
+import { v4 as uuidv4 } from 'uuid';
+
 import { Pet, PetSpecies } from '../../types/types';
 import { PhotoService } from '../../services/photo.service';
 
@@ -21,6 +23,7 @@ export class AddPetPage {
     private photoService: PhotoService
   ) {
     this.pet = {
+      uuid: uuidv4(),
       name: '',
     };
   }

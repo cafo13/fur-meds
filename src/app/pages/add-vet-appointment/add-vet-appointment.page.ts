@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
-import { VetAppointments } from '../../types/types';
+import { v4 as uuidv4 } from 'uuid';
+
+import { PetVetAppointment } from '../../types/types';
 
 @Component({
   selector: 'app-add-vet-appointment',
@@ -12,10 +14,11 @@ import { VetAppointments } from '../../types/types';
   imports: [IonicModule, CommonModule],
 })
 export class AddVetAppointmentPage {
-  vetAppointment: VetAppointments;
+  vetAppointment: PetVetAppointment;
 
   constructor(private modalCtrl: ModalController) {
     this.vetAppointment = {
+      uuid: uuidv4(),
       name: '',
     };
   }
