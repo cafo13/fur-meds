@@ -7,13 +7,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { PetFood } from '../../types/types';
 
 @Component({
-  selector: 'app-add-food',
-  templateUrl: 'add-food.page.html',
-  styleUrls: ['add-food.page.scss'],
+  selector: 'app-set-food',
+  templateUrl: 'set-food.page.html',
+  styleUrls: ['set-food.page.scss'],
   standalone: true,
   imports: [IonicModule, CommonModule],
 })
-export class AddFoodPage {
+export class SetFoodPage {
   food: PetFood;
 
   constructor(private modalCtrl: ModalController) {

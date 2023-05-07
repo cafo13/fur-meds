@@ -4,7 +4,7 @@ import { AlertController, IonicModule, ModalController } from '@ionic/angular';
 
 import { Pet, PetFood, PetMedicine } from '../../types/types';
 import { SetMedicinePage } from '../set-medicine/set-medicine.page';
-import { AddFoodPage } from '../add-food/add-food.page';
+import { SetFoodPage } from '../set-food/set-food.page';
 
 @Component({
   selector: 'app-pet',
@@ -83,63 +83,30 @@ export class PetPage {
     alert.present();
   }
 
-  async addFood() {
-    console.log('opening add add medicine modal');
+  async setFood(dataForUpdate: PetFood | undefined = undefined) {
+    const mode = dataForUpdate ? 'Update' : 'Add';
+    console.log('opening set food modal with mode ' + mode);
 
     const modal = await this.modalCtrl.create({
-      component: AddFoodPage,
+      component: SetFoodPage,
+      componentProps: { dataForUpdate },
     });
     modal.present();
 
     const { data, role } = await modal.onWillDismiss();
 
-    if (role !== 'cancel') {
+    if (role === 'save') {
       if (this.pet && !this.pet?.foods) {
         this.pet.foods = [];
       }
-      this.pet?.foods?.push(data);
-    }
-  }
-
-  async updateFood(food: PetFood) {
-    console.log('updating food ' + food.uuid);
-
-    const alert = await this.alertCtrl.create({
-      inputs: [
-        {
-          placeholder: 'Name',
-          value: food.name,
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            console.log('Cancelled updating food ' + food.uuid);
-          },
-        },
-        {
-          text: 'Save',
-          role: 'confirm',
-          handler: (value: any) => {
-            console.log('Successfully updated food ' + food.uuid);
-            food.name = value[0];
-            this.updatePetFoodItem(food);
-          },
-        },
-      ],
-    });
-    alert.present();
-  }
-
-  updatePetFoodItem(updatedFood: PetFood): void {
-    if (!this.pet || !this.pet.foods) {
-      return;
-    }
-    for (let food of this.pet.foods) {
-      if (food.uuid === updatedFood.uuid) {
-        food.name = updatedFood.name;
+      if (mode === 'Update' && this.pet && this.pet.foods) {
+        for (let food of this.pet.foods) {
+          if (food.uuid === data.uuid) {
+            food = data;
+          }
+        }
+      } else {
+        this.pet?.foods?.push(data);
       }
     }
   }
@@ -162,23 +129,19 @@ export class PetPage {
           role: 'confirm',
           handler: () => {
             console.log('Successfully deleted food ' + food.uuid);
-            this.deletePetFoodItem(food.uuid);
+            if (!this.pet || !this.pet.foods) {
+              return;
+            }
+            this.pet.foods.forEach((existingFood, index) => {
+              if (existingFood.uuid === food.uuid) {
+                this.pet?.foods?.splice(index, 1);
+              }
+            });
           },
         },
       ],
     });
     alert.present();
-  }
-
-  deletePetFoodItem(uuid: string) {
-    if (!this.pet || !this.pet.foods) {
-      return;
-    }
-    this.pet.foods.forEach((food, index) => {
-      if (food.uuid === uuid) {
-        this.pet?.foods?.splice(index, 1);
-      }
-    });
   }
 
   cancel() {

@@ -59,9 +59,9 @@
           <ion-icon
             slot="start"
             name="create-sharp"
-            (click)="updateFood(food)"
+            (click)="setFood(food)"
           ></ion-icon>
-          <p (click)="updateFood(food)">{{ food.name }}</p>
+          <p (click)="setFood(food)">{{ food.name }}</p>
           <ion-icon
             slot="end"
             name="trash-sharp"
@@ -70,7 +70,7 @@
         </ion-item>
       </ion-list>
       <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button size="small" (click)="addFood()">
+        <ion-fab-button size="small" (click)="setFood()">
           <ion-icon name="add"></ion-icon>
         </ion-fab-button>
       </ion-fab>
