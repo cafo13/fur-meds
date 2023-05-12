@@ -14,12 +14,15 @@ import { SetFoodPage } from '../set-food/set-food.page';
   imports: [IonicModule, CommonModule],
 })
 export class PetPage {
-  @Input() pet: Pet | undefined = undefined;
+  @Input() input: Pet | undefined = undefined;
+  pet: Pet | undefined;
 
   constructor(
     private modalCtrl: ModalController,
     private alertCtrl: AlertController
-  ) {}
+  ) {
+    this.pet = this.input;
+  }
 
   async setMedicine(dataForUpdate: PetMedicine | undefined = undefined) {
     const mode = dataForUpdate ? 'Update' : 'Add';

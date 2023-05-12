@@ -12,7 +12,7 @@
   </ion-header>
 
   <ion-list>
-    <ion-item *ngFor="let pet of myPets">
+    <ion-item *ngFor="let pet in myPets$ | async">
       <ion-card (click)="openPetModal(pet)">
         <ion-img
           *ngIf="pet.image"

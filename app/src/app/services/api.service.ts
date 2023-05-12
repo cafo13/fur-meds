@@ -30,7 +30,7 @@ export class ApiService {
   }
 
   // get the full pet list
-  public getPetList(): Observable<Pet[]> {
+  public getPets(): Observable<Pet[]> {
     return this.http
       .get<Pet[]>(`${this.apiBaseDomain}/pets`)
       .pipe(catchError(this.handleError));
@@ -43,10 +43,10 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
-  // update a pet
-  public updatePet(pet: Partial<Pet>): Observable<Pet> {
+  // update a pet, returns the new full pet list
+  public updatePet(pet: Partial<Pet>): Observable<Pet[]> {
     return this.http
-      .put<Pet>(`${this.apiBaseDomain}/pet`, pet)
+      .put<Pet[]>(`${this.apiBaseDomain}/pet`, pet)
       .pipe(catchError(this.handleError));
   }
 

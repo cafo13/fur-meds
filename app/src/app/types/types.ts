@@ -16,9 +16,16 @@ export type PetMedicine = {
   frequencies: PetMedicineFrequency[];
 };
 
+export type PetFoodFrequency = {
+  uuid: string;
+  time: string;
+};
+
 export type PetFood = {
   uuid: string;
   name: string;
+  dosage: string;
+  frequencies: PetFoodFrequency[];
 };
 
 export type Pet = {

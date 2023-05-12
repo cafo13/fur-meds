@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -13,14 +13,23 @@ import { PetFood } from '../../types/types';
   standalone: true,
   imports: [IonicModule, CommonModule],
 })
-export class SetFoodPage {
-  food: PetFood;
+export class SetFoodPage implements OnInit {
+  food: PetFood = {
+    uuid: uuidv4(),
+    name: '',
+    dosage: '',
+    frequencies: [],
+  };
+  mode: 'Add' | 'Update' = 'Add';
+  @Input() dataForUpdate: PetFood | undefined = undefined;
 
-  constructor(private modalCtrl: ModalController) {
-    this.food = {
-      uuid: uuidv4(),
-      name: '',
-    };
+  constructor(private modalCtrl: ModalController) {}
+
+  ngOnInit(): void {
+    if (this.dataForUpdate) {
+      this.mode = 'Update';
+      this.food = this.dataForUpdate;
+    }
   }
 
   cancel() {
