@@ -1,0 +1,159 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Fur Meds
+  description: API for the Fur Meds app
+  contact:
+    name: Fur Meds
+    url: https://furmeds.app/
+servers:
+  - url: https://{hostname}/api
+    variables:
+      hostname:
+        default: localhost
+security:
+  - bearerAuth: []
+paths:
+  /pets:
+    get:
+      operationId: getPets
+      summary: Get all of your pets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/components/schemas/Pet'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/components/schemas/Error'
+      default:
+        description: unexpected error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+  /pet:
+    post:
+      operationId: addPet
+      summary: Add a new pet
+      consumes:
+      - application/json
+      parameters:
+      - description: a new pet
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/components/schemas/Pet'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/components/schemas/Pet'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/components/schemas/Error'
+      default:
+        description: unexpected error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+    put:
+      operationId: updatePet
+      summary: Update a pet
+      parameters:
+        - description: an updated pet
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/components/schemas/Pet'
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/components/schemas/Fact'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/components/schemas/Error'
+  /pet/{petUUID}:
+    delete:
+      operationId: deletePetByID
+      summary: Delete a pet
+      parameters:
+        - in: path
+          name: petUUID
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The UUID of the pet
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/components/schemas/Message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Pet:
+      type: object
+      required:
+        - uuid
+        - name
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    Message:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - slug
+        - message
+      properties:
+        slug:
+          type: string
+        message:
+          type: string
