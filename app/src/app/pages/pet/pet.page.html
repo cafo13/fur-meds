@@ -1,0 +1,79 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+    <ion-title>{{ this.pet?.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="save()" [strong]="true">Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ this.pet?.name }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title
+        >Medicines <ion-icon name="flask-sharp"></ion-icon
+      ></ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list [inset]="true">
+        <ion-item *ngFor="let medicine of this.pet?.medicines">
+          <ion-icon
+            slot="start"
+            name="create-sharp"
+            (click)="setMedicine(medicine)"
+          ></ion-icon>
+          <p (click)="setMedicine(medicine)">{{ medicine.name }}</p>
+          <ion-icon
+            slot="end"
+            name="trash-sharp"
+            (click)="deleteMedicine(medicine)"
+          ></ion-icon>
+        </ion-item>
+      </ion-list>
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button size="small" (click)="setMedicine()">
+          <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title
+        >Foods <ion-icon name="restaurant-sharp"></ion-icon
+      ></ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list [inset]="true">
+        <ion-item *ngFor="let food of this.pet?.foods">
+          <ion-icon
+            slot="start"
+            name="create-sharp"
+            (click)="setFood(food)"
+          ></ion-icon>
+          <p (click)="setFood(food)">{{ food.name }}</p>
+          <ion-icon
+            slot="end"
+            name="trash-sharp"
+            (click)="deleteFood(food)"
+          ></ion-icon>
+        </ion-item>
+      </ion-list>
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button size="small" (click)="setFood()">
+          <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

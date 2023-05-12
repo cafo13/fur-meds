@@ -1,7 +1,0 @@
-{
-  "name": "medpet",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular-standalone"
-}
