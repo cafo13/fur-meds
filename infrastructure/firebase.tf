@@ -36,9 +36,9 @@ resource "google_firebase_project_location" "default" {
   ]
 }
 
-resource "google_firebase_web_app" "animal_facts" {
+resource "google_firebase_web_app" "fur_meds" {
   provider     = google-beta
-  display_name = "Animal Facts"
+  display_name = "Fur Meds"
 
   depends_on = [google_firebase_project.default]
 }

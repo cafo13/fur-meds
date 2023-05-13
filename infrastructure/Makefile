@@ -1,5 +1,4 @@
-base_image:=gcr.io/cloudrun/hello
-load_envs:=. ./.env
+load_envs:=source ./.env
 
 all: init apply
 

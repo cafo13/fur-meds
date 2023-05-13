@@ -21,5 +21,5 @@ variable "billing_account" {
 
 variable "app_version" {
   type        = string
-  description = "The version of animal-facts to deploy"
+  description = "The version of fur-meds to deploy"
 }

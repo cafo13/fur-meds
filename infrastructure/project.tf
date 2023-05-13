@@ -3,7 +3,7 @@ data "google_billing_account" "account" {
 }
 
 resource "google_project" "project" {
-  name            = "Animal Facts"
+  name            = "Fur Meds"
   project_id      = var.project
   billing_account = data.google_billing_account.account.id
 }

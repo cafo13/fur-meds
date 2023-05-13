@@ -1,7 +1,7 @@
 resource "google_artifact_registry_repository" "repository" {
   location      = "europe-west4"
-  repository_id = "animal-facts"
-  description   = "Storing images of animal facts services"
+  repository_id = "fur-meds"
+  description   = "Storing images of fur meds services"
   format        = "DOCKER"
 }
 
@@ -38,7 +38,7 @@ resource "google_iam_workload_identity_pool_provider" "pool_oidc" {
 resource "google_project_iam_member" "registry" {
   project = google_project.project.id
   role    = "roles/iam.workloadIdentityUser"
-  member  = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.pool.name}/attribute.repository/cafo13/animal-facts"
+  member  = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.pool.name}/attribute.repository/cafo13/fur-meds"
 }
 
 resource "google_project_iam_member" "registry_admin" {
