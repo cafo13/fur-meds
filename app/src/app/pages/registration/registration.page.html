@@ -1,7 +1,10 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button
+        (click)="dismissModal()"
+        defaultHref="/tabs/account"
+      ></ion-back-button>
     </ion-buttons>
     <ion-title>Register</ion-title>
   </ion-toolbar>
@@ -10,20 +13,36 @@
 <ion-content [fullscreen]="true">
   <form>
     <ion-item lines="full">
-      <ion-label position="floating">First name</ion-label>
-      <ion-input type="text" required></ion-input>
+      <ion-input
+        label="First name"
+        labelPlacement="floating"
+        type="text"
+        required
+      ></ion-input>
     </ion-item>
     <ion-item lines="full">
-      <ion-label position="floating">Last name</ion-label>
-      <ion-input type="text" required></ion-input>
+      <ion-input
+        label="Last name"
+        labelPlacement="floating"
+        type="text"
+        required
+      ></ion-input>
     </ion-item>
     <ion-item lines="full">
-      <ion-label position="floating">Email</ion-label>
-      <ion-input type="text" required></ion-input>
+      <ion-input
+        label="Email"
+        labelPlacement="floating"
+        type="text"
+        required
+      ></ion-input>
     </ion-item>
     <ion-item lines="full">
-      <ion-label position="floating">Password</ion-label>
-      <ion-input type="password" required></ion-input>
+      <ion-input
+        label="Password"
+        labelPlacement="floating"
+        type="password"
+        required
+      ></ion-input>
     </ion-item>
     <ion-row>
       <ion-col>

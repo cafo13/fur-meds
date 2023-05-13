@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { ForgotPasswordPage } from '../forgot-password/forgot-password.page';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,7 +13,10 @@ import { ForgotPasswordPage } from '../forgot-password/forgot-password.page';
   imports: [IonicModule, CommonModule, FormsModule],
 })
 export class LoginPage {
-  constructor(protected modalCtrl: ModalController) {}
+  constructor(
+    protected modalCtrl: ModalController,
+    private auth: AuthService
+  ) {}
 
   async openForgotPasswordModal() {
     const modal = await this.modalCtrl.create({
@@ -24,5 +28,15 @@ export class LoginPage {
     if (role !== 'cancel') {
       // something to do here?
     }
+  }
+
+  async dismissModal() {
+    await this.modalCtrl.dismiss();
+  }
+
+  async signIn(userMail: any, userPassword: any) {
+    console.log('sign in', userMail, userPassword);
+    await this.auth.SignIn(userMail, userPassword);
+    await this.dismissModal();
   }
 }

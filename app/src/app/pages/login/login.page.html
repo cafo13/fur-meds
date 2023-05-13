@@ -1,7 +1,10 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button
+        (click)="dismissModal()"
+        defaultHref="/tabs/account"
+      ></ion-back-button>
     </ion-buttons>
     <ion-title>Log In</ion-title>
   </ion-toolbar>
@@ -9,16 +12,30 @@
 <ion-content [fullscreen]="true">
   <form>
     <ion-item lines="full">
-      <ion-label position="floating">Email</ion-label>
-      <ion-input type="text" required></ion-input>
+      <ion-input
+        label="Email"
+        labelPlacement="floating"
+        type="text"
+        #userMail
+        required
+      ></ion-input>
     </ion-item>
     <ion-item lines="full">
-      <ion-label position="floating">Password</ion-label>
-      <ion-input type="password" required></ion-input>
+      <ion-input
+        label="Password"
+        labelPlacement="floating"
+        type="password"
+        #userPassword
+        required
+      ></ion-input>
     </ion-item>
     <ion-row>
       <ion-col>
-        <ion-button type="submit" color="danger" expand="block"
+        <ion-button
+          (click)="signIn(userMail.value, userPassword.value)"
+          type="submit"
+          color="danger"
+          expand="block"
           >Sign In</ion-button
         >
         <a (click)="openForgotPasswordModal()" class="small-text"

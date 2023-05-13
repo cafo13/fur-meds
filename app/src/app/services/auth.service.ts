@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +9,11 @@ import { Router } from '@angular/router';
 export class AuthService {
   userData: any;
 
-  constructor(private fireAuth: AngularFireAuth, private router: Router) {
+  constructor(
+    private fireAuth: AngularFireAuth,
+    private router: Router,
+    private toastCtrl: ToastController
+  ) {
     this.fireAuth.authState.subscribe((user) => {
       if (user) {
         this.userData = user;
@@ -27,19 +32,20 @@ export class AuthService {
       .then((_user) => {
         this.fireAuth.authState.subscribe((user) => {
           if (user) {
-            this.router.navigate(['admin']);
+            this.router.navigate(['']);
           }
         });
       })
       .catch((error) => {
         window.alert(error.message);
+        this.toastCtrl.create();
       });
   }
 
   async SignOut() {
     return this.fireAuth.signOut().then(() => {
       localStorage.removeItem('user');
-      this.router.navigate(['home']);
+      this.router.navigate(['/tabs/account']);
     });
   }
 
