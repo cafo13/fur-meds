@@ -8,6 +8,7 @@ import { AddPetPage } from '../add-pet/add-pet.page';
 
 import { ApiService } from 'src/app/services/api.service';
 import { Observable } from 'rxjs';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-pets',
@@ -19,7 +20,11 @@ import { Observable } from 'rxjs';
 export class PetsPage {
   myPets$: Observable<Pet[]>;
 
-  constructor(private modalCtrl: ModalController, private api: ApiService) {
+  constructor(
+    private modalCtrl: ModalController,
+    private api: ApiService,
+    protected auth: AuthService
+  ) {
     this.myPets$ = api.getPets();
   }
 

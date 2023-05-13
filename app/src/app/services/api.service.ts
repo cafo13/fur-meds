@@ -24,9 +24,10 @@ export class ApiService {
       );
     }
 
-    return throwError(
-      () => new Error('Something bad happened; please try again later.')
-    );
+    return throwError(() => {
+      console.error(error);
+      new Error('Something bad happened; please try again later');
+    });
   }
 
   // get the full pet list

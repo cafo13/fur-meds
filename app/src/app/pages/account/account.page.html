@@ -11,9 +11,22 @@
     </ion-toolbar>
   </ion-header>
 
-  <p>
-    Account functionality will be implemented in the future. Come back later
-    here to be able to share your pet data with other people (e.g. of your
-    household).
-  </p>
+  <ion-grid *ngIf="!auth.isLoggedIn">
+    <ion-row>
+      <ion-col align-self-center>
+        <ion-button
+          (click)="openRegistrationModal()"
+          expand="block"
+          color="primary"
+          >Register</ion-button
+        >
+        <span class="divider line one-line">or</span>
+        <span class="already">Already a user?</span>
+        <ion-button (click)="openLoginModal()" expand="block" color="danger"
+          >Sign In</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ion-text *ngIf="auth.isLoggedIn">Logged in!</ion-text>
 </ion-content>

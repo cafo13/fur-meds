@@ -7,6 +7,8 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 import { HttpClientModule } from '@angular/common/http';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 
 if (environment.production) {
   enableProdMode();
@@ -18,5 +20,9 @@ bootstrapApplication(AppComponent, {
     importProvidersFrom(IonicModule.forRoot({})),
     provideRouter(routes),
     importProvidersFrom(HttpClientModule),
+    importProvidersFrom(
+      AngularFireModule.initializeApp(environment.firebaseConfig)
+    ),
+    importProvidersFrom(AngularFireAuthModule),
   ],
 });

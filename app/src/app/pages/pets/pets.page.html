@@ -11,7 +11,18 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-list>
+  <ion-grid *ngIf="!auth.isLoggedIn">
+    <ion-row>
+      <ion-col>
+        <div class="ion-text-center">
+          <p>Please log in an the account page to view your pets</p>
+          <ion-button>Log in</ion-button>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-list *ngIf="auth.isLoggedIn">
     <ion-item *ngFor="let pet of myPets$ | async">
       <ion-card (click)="openPetModal(pet)">
         <ion-img
@@ -26,7 +37,12 @@
     </ion-item>
   </ion-list>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab
+    vertical="bottom"
+    horizontal="end"
+    slot="fixed"
+    *ngIf="auth.isLoggedIn"
+  >
     <ion-fab-button (click)="addPet()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
