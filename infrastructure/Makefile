@@ -1,4 +1,4 @@
-load_envs:=source ./.env
+load_envs:=. ./.env
 
 all: init apply
 
