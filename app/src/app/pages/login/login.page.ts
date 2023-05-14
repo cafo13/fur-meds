@@ -35,7 +35,6 @@ export class LoginPage {
   }
 
   async signIn(userMail: any, userPassword: any) {
-    console.log('sign in', userMail, userPassword);
     await this.auth.SignIn(userMail, userPassword);
     await this.dismissModal();
   }

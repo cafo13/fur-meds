@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 
 import * as auth from 'firebase/auth';
 
@@ -15,7 +15,8 @@ export class AuthService {
     private fireAuth: AngularFireAuth,
     private router: Router,
     private toastCtrl: ToastController
-  ) {
+  ) // private alertCtrl: AlertController
+  {
     this.fireAuth.authState.subscribe((user) => {
       if (user) {
         this.userData = user;
@@ -38,12 +39,15 @@ export class AuthService {
           }
         });
       })
-      .catch((error) => {
-        this.toastCtrl.create({
+      .catch(async (error) => {
+        const toast = await this.toastCtrl.create({
           message: error.message,
-          position: 'bottom',
+          position: 'top',
           color: 'danger',
+          duration: 5000,
         });
+        toast.present();
+        console.error(error.message);
       });
   }
 
@@ -69,39 +73,57 @@ export class AuthService {
         this.userData = result.user;
         localStorage.setItem('user', JSON.stringify(result.user));
       })
-      .catch((error) => {
-        this.toastCtrl.create({
+      .catch(async (error) => {
+        const toast = await this.toastCtrl.create({
           message: error.message,
-          position: 'bottom',
+          position: 'top',
           color: 'danger',
+          duration: 5000,
         });
+        toast.present();
+        console.error(error.message);
       });
   }
 
   async SendVerificationMail() {
     return this.fireAuth.currentUser
       .then((u: any) => u.sendEmailVerification())
-      .then(() => {
-        this.router.navigate(['verify-email-address']);
+      .then(async () => {
+        const toast = await this.toastCtrl.create({
+          message: 'Email verification mail sent, check your inbox.',
+          position: 'top',
+          color: 'success',
+          duration: 5000,
+        });
+        toast.present();
       });
   }
 
   async ForgotPassword(passwordResetEmail: string) {
     return this.fireAuth
       .sendPasswordResetEmail(passwordResetEmail)
-      .then(() => {
-        this.toastCtrl.create({
+      .then(async () => {
+        // const alert = await this.alertCtrl.create({
+        //   message: 'Password reset email sent, please type in the code to .',
+        // });
+        // alert.present();
+        const toast = await this.toastCtrl.create({
           message: 'Password reset email sent, check your inbox.',
-          position: 'bottom',
+          position: 'top',
           color: 'success',
+          duration: 5000,
         });
+        toast.present();
       })
-      .catch((error) => {
-        this.toastCtrl.create({
+      .catch(async (error) => {
+        const toast = await this.toastCtrl.create({
           message: error.message,
-          position: 'bottom',
+          position: 'top',
           color: 'danger',
+          duration: 5000,
         });
+        toast.present();
+        console.error(error.message);
       });
   }
 
@@ -113,12 +135,15 @@ export class AuthService {
         this.userData = result.user;
         localStorage.setItem('user', JSON.stringify(result.user));
       })
-      .catch((error) => {
-        this.toastCtrl.create({
+      .catch(async (error) => {
+        const toast = await this.toastCtrl.create({
           message: error.message,
-          position: 'bottom',
+          position: 'top',
           color: 'danger',
+          duration: 5000,
         });
+        toast.present();
+        console.error(error.message);
       });
   }
 }

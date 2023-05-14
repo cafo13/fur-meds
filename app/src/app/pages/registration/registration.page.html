@@ -14,25 +14,10 @@
   <form>
     <ion-item lines="full">
       <ion-input
-        label="First name"
-        labelPlacement="floating"
-        type="text"
-        required
-      ></ion-input>
-    </ion-item>
-    <ion-item lines="full">
-      <ion-input
-        label="Last name"
-        labelPlacement="floating"
-        type="text"
-        required
-      ></ion-input>
-    </ion-item>
-    <ion-item lines="full">
-      <ion-input
         label="Email"
         labelPlacement="floating"
         type="text"
+        #userMail
         required
       ></ion-input>
     </ion-item>
@@ -41,12 +26,17 @@
         label="Password"
         labelPlacement="floating"
         type="password"
+        #userPassword
         required
       ></ion-input>
     </ion-item>
     <ion-row>
       <ion-col>
-        <ion-button type="submit" color="danger" expand="block"
+        <ion-button
+          (click)="signUp(userMail.value, userPassword.value)"
+          type="submit"
+          color="danger"
+          expand="block"
           >Sign Up</ion-button
         >
       </ion-col>

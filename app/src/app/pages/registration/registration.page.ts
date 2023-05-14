@@ -17,4 +17,9 @@ export class RegistrationPage {
   async dismissModal() {
     await this.modalCtrl.dismiss();
   }
+
+  async signUp(userMail: any, userPassword: any) {
+    await this.auth.SignUp(userMail, userPassword);
+    await this.dismissModal();
+  }
 }

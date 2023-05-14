@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -11,9 +12,14 @@ import { IonicModule, ModalController } from '@ionic/angular';
   imports: [IonicModule, CommonModule, FormsModule],
 })
 export class ForgotPasswordPage {
-  constructor(private modalCtrl: ModalController) {}
+  constructor(private modalCtrl: ModalController, private auth: AuthService) {}
 
-  dismissModal() {
-    this.modalCtrl.dismiss();
+  async dismissModal() {
+    await this.modalCtrl.dismiss();
+  }
+
+  async forgotPassword(userMail: any) {
+    await this.auth.ForgotPassword(userMail);
+    await this.dismissModal();
   }
 }

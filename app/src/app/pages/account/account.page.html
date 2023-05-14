@@ -8,6 +8,12 @@
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Account</ion-title>
+      <ion-icon
+        name="log-out-sharp"
+        slot="end"
+        (click)="auth.SignOut()"
+        *ngIf="auth.isLoggedIn"
+      ></ion-icon>
     </ion-toolbar>
   </ion-header>
 
