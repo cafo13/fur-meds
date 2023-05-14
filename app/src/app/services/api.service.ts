@@ -2,6 +2,7 @@ import {
   HttpClient,
   HttpErrorResponse,
   HttpHeaders,
+  HttpParams,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
@@ -20,12 +21,11 @@ export class ApiService {
 
   private getAccessToken(): string | undefined {
     const currentUser = JSON.parse(localStorage.getItem('user')!);
-    return currentUser.accessToken ?? undefined;
+    return currentUser.stsTokenManager.accessToken ?? undefined;
   }
 
   private getHeaders(): HttpHeaders {
     return new HttpHeaders({
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${this.getAccessToken()}`,
     });
   }

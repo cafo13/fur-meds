@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/cafo13/fur-meds/backend/pets-api/auth"
+	"github.com/cafo13/fur-meds/backend/pets-api/cors"
 	"github.com/cafo13/fur-meds/backend/pets-api/repository"
 
 	"github.com/gin-gonic/gin"
@@ -26,15 +27,24 @@ type GinRouter interface {
 type Router struct {
 	Router         *gin.Engine
 	AuthMiddleware auth.AuthMiddleware
+	CORSMiddleware cors.CORSMiddleware
 	PetsRepository repository.PetsRepository
 }
 
-func NewRouter(authMiddleware auth.AuthMiddleware, petsRepository repository.PetsRepository) GinRouter {
-	return Router{Router: gin.Default(), AuthMiddleware: authMiddleware, PetsRepository: petsRepository}
+func NewRouter(
+	authMiddleware auth.AuthMiddleware,
+	corsMiddleware cors.CORSMiddleware,
+	petsRepository repository.PetsRepository,
+) GinRouter {
+	return Router{
+		Router:         gin.Default(),
+		AuthMiddleware: authMiddleware,
+		CORSMiddleware: corsMiddleware,
+		PetsRepository: petsRepository,
+	}
 }
 
 func (r Router) GetPets(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Methods", "GET")
 
 	pets, err := r.PetsRepository.GetPets(ctx)
@@ -49,7 +59,6 @@ func (r Router) GetPets(ctx *gin.Context) {
 }
 
 func (r Router) AddPet(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Methods", "POST")
 
 	pet := &repository.Pet{}
@@ -73,7 +82,6 @@ func (r Router) AddPet(ctx *gin.Context) {
 }
 
 func (r Router) UpdatePet(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Methods", "PUT")
 
 	pet := &repository.Pet{}
@@ -128,7 +136,6 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 }
 
 func (r Router) DeletePet(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Methods", "DELETE")
 
 	id := ctx.Params.ByName("uuid")
@@ -144,15 +151,18 @@ func (r Router) DeletePet(ctx *gin.Context) {
 }
 
 func (r Router) StartRouter(port string) {
+	r.Router.Use(r.CORSMiddleware.Middleware())
+	r.Router.Use(r.AuthMiddleware.Middleware())
+
 	v1 := r.Router.Group("/api/v1")
 	{
-		v1.GET("/pets", r.AuthMiddleware.Middleware(), r.GetPets)
+		v1.GET("/pets", r.GetPets)
 
-		v1.POST("/pet", r.AuthMiddleware.Middleware(), r.AddPet)
+		v1.POST("/pet", r.AddPet)
 
-		v1.PUT("/pet", r.AuthMiddleware.Middleware(), r.UpdatePet)
+		v1.PUT("/pet", r.UpdatePet)
 
-		v1.DELETE("/pet/:uuid", r.AuthMiddleware.Middleware(), r.DeletePet)
+		v1.DELETE("/pet/:uuid", r.DeletePet)
 	}
 
 	r.Router.Run(":" + port)

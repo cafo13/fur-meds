@@ -8,6 +8,7 @@ import (
 	"cloud.google.com/go/firestore"
 
 	"github.com/cafo13/fur-meds/backend/pets-api/auth"
+	"github.com/cafo13/fur-meds/backend/pets-api/cors"
 	"github.com/cafo13/fur-meds/backend/pets-api/repository"
 	"github.com/cafo13/fur-meds/backend/pets-api/router"
 
@@ -51,8 +52,8 @@ func setupPetsRepository(ctx context.Context, gcpProject string) *repository.Pet
 	return &petsFirestoreRepository
 }
 
-func setupRouter(authHandler *auth.AuthMiddleware, petsRepository *repository.PetsRepository) router.GinRouter {
-	router := router.NewRouter(*authHandler, *petsRepository)
+func setupRouter(authHandler *auth.AuthMiddleware, corsHandler *cors.CORSMiddleware, petsRepository *repository.PetsRepository) router.GinRouter {
+	router := router.NewRouter(*authHandler, *corsHandler, *petsRepository)
 	return router
 }
 
@@ -62,8 +63,9 @@ func main() {
 	apiPort := os.Getenv("API_PORT")
 
 	authMiddleware := setupAuthMiddleware()
+	corsMiddleware := cors.NewAllowingCORSMiddleware()
 	petsRepository := setupPetsRepository(context.Background(), os.Getenv("GCP_PROJECT"))
-	router := setupRouter(authMiddleware, petsRepository)
+	router := setupRouter(authMiddleware, &corsMiddleware, petsRepository)
 
 	router.StartRouter(apiPort)
 }
