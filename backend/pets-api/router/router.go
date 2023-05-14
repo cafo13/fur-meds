@@ -82,13 +82,13 @@ func (r Router) AddPet(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 	}
 
-	err = r.PetsRepository.AddPet(ctx, user.UID, pet)
+	pets, err := r.PetsRepository.AddPet(ctx, user.UID, pet)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		return
 	} else {
-		ctx.IndentedJSON(http.StatusCreated, pet)
+		ctx.IndentedJSON(http.StatusCreated, pets)
 		return
 	}
 }
@@ -119,7 +119,7 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 		return
 	}
 
-	err = r.PetsRepository.UpdatePet(
+	pets, err := r.PetsRepository.UpdatePet(
 		ctx,
 		user.UID,
 		pet.UUID.String(),
@@ -149,7 +149,7 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
 		return
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{"Message": "updated pet successfully"})
+		ctx.IndentedJSON(http.StatusOK, pets)
 		return
 	}
 }
@@ -164,13 +164,13 @@ func (r Router) DeletePet(ctx *gin.Context) {
 	}
 
 	petUUID := ctx.Params.ByName("uuid")
-	err = r.PetsRepository.DeletePet(ctx, user.UID, petUUID)
+	pets, err := r.PetsRepository.DeletePet(ctx, user.UID, petUUID)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		return
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{"Message": "deleted pet successfully"})
+		ctx.IndentedJSON(http.StatusOK, pets)
 		return
 	}
 }

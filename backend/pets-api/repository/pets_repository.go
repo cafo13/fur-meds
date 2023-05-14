@@ -50,7 +50,7 @@ type Pet struct {
 }
 
 type PetsRepository interface {
-	AddPet(ctx context.Context, userUid string, pet *Pet) error
+	AddPet(ctx context.Context, userUid string, pet *Pet) ([]*Pet, error)
 	GetPet(ctx context.Context, userUid string, petUUID string) (*Pet, error)
 	GetPets(ctx context.Context, userUid string) ([]*Pet, error)
 	UpdatePet(
@@ -58,6 +58,6 @@ type PetsRepository interface {
 		userUid string,
 		petUUID string,
 		updateFn func(ctx context.Context, pet *Pet) (*Pet, error),
-	) error
-	DeletePet(ctx context.Context, userUid string, petUUID string) error
+	) ([]*Pet, error)
+	DeletePet(ctx context.Context, userUid string, petUUID string) ([]*Pet, error)
 }
