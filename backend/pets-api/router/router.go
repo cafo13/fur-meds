@@ -47,7 +47,13 @@ func NewRouter(
 func (r Router) GetPets(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "GET")
 
-	pets, err := r.PetsRepository.GetPets(ctx)
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+	}
+
+	pets, err := r.PetsRepository.GetPets(ctx, user.UID)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -70,7 +76,13 @@ func (r Router) AddPet(ctx *gin.Context) {
 		return
 	}
 
-	err = r.PetsRepository.AddPet(ctx, pet)
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+	}
+
+	err = r.PetsRepository.AddPet(ctx, user.UID, pet)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -93,7 +105,13 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 		return
 	}
 
-	_, err = r.PetsRepository.GetPet(ctx, pet.UUID.String())
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+	}
+
+	_, err = r.PetsRepository.GetPet(ctx, user.UID, pet.UUID.String())
 	if err != nil {
 		errorMsg := fmt.Sprintf("error on loading pet with UUID '%s'", pet.UUID)
 		log.Error(errorMsg)
@@ -103,6 +121,7 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 
 	err = r.PetsRepository.UpdatePet(
 		ctx,
+		user.UID,
 		pet.UUID.String(),
 		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
 			if pet.Name != "" && pet.Name != firestorePet.Name {
@@ -138,8 +157,14 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 func (r Router) DeletePet(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "DELETE")
 
-	id := ctx.Params.ByName("uuid")
-	err := r.PetsRepository.DeletePet(ctx, id)
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+	}
+
+	petUUID := ctx.Params.ByName("uuid")
+	err = r.PetsRepository.DeletePet(ctx, user.UID, petUUID)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})

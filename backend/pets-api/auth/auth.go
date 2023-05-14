@@ -42,10 +42,11 @@ func (a FirebaseAuthMiddleware) Middleware() gin.HandlerFunc {
 		}
 
 		ctx.Request = ctx.Request.WithContext(context.WithValue(ctx, userContextKey, User{
-			UUID:  token.UID,
+			UID:   token.UID,
 			Email: token.Claims["email"].(string),
 		}))
 
+		ctx.Params = append(ctx.Params)
 		ctx.Next()
 	}
 }
@@ -61,7 +62,7 @@ func (a FirebaseAuthMiddleware) tokenFromHeader(r *http.Request) string {
 }
 
 type User struct {
-	UUID  string
+	UID   string
 	Email string
 	Role  string
 

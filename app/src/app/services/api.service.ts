@@ -21,7 +21,7 @@ export class ApiService {
 
   private getAccessToken(): string | undefined {
     const currentUser = JSON.parse(localStorage.getItem('user')!);
-    return currentUser.stsTokenManager.accessToken ?? undefined;
+    return currentUser?.stsTokenManager?.accessToken ?? undefined;
   }
 
   private getHeaders(): HttpHeaders {

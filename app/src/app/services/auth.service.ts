@@ -14,9 +14,8 @@ export class AuthService {
   constructor(
     private fireAuth: AngularFireAuth,
     private router: Router,
-    private toastCtrl: ToastController
-  ) // private alertCtrl: AlertController
-  {
+    private toastCtrl: ToastController // private alertCtrl: AlertController
+  ) {
     this.fireAuth.authState.subscribe((user) => {
       if (user) {
         this.userData = user;
@@ -44,7 +43,7 @@ export class AuthService {
           message: error.message,
           position: 'top',
           color: 'danger',
-          duration: 5000,
+          duration: 10000,
         });
         toast.present();
         console.error(error.message);
@@ -78,7 +77,7 @@ export class AuthService {
           message: error.message,
           position: 'top',
           color: 'danger',
-          duration: 5000,
+          duration: 10000,
         });
         toast.present();
         console.error(error.message);
@@ -93,7 +92,7 @@ export class AuthService {
           message: 'Email verification mail sent, check your inbox.',
           position: 'top',
           color: 'success',
-          duration: 5000,
+          duration: 10000,
         });
         toast.present();
       });
@@ -111,7 +110,7 @@ export class AuthService {
           message: 'Password reset email sent, check your inbox.',
           position: 'top',
           color: 'success',
-          duration: 5000,
+          duration: 10000,
         });
         toast.present();
       })
@@ -120,7 +119,7 @@ export class AuthService {
           message: error.message,
           position: 'top',
           color: 'danger',
-          duration: 5000,
+          duration: 10000,
         });
         toast.present();
         console.error(error.message);
@@ -140,7 +139,7 @@ export class AuthService {
           message: error.message,
           position: 'top',
           color: 'danger',
-          duration: 5000,
+          duration: 10000,
         });
         toast.present();
         console.error(error.message);
