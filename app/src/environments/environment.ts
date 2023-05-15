@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
-  apiEndpoint: 'https://pets-api-fh65cjqo3q-ez.a.run.app/api/v1',
-  //apiEndpoint: 'http://localhost:8080/api/v1',
+  //apiEndpoint: 'https://pets-api-fh65cjqo3q-ez.a.run.app/api/v1',
+  apiEndpoint: 'http://localhost:8080/api/v1',
   firebaseConfig: {
     apiKey: 'AIzaSyAKNDFsLex3sFeS887HKjAv68NeGmqVoxA',
     authDomain: 'fur-meds-project.firebaseapp.com',

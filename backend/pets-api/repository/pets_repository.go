@@ -16,7 +16,7 @@ const (
 type PetMedicineFrequency struct {
 	UUID      uuid.UUID `firestore:"uuid" json:"uuid"`
 	Time      string    `firestore:"time" json:"time"`
-	EveryDays uint      `firestore:"everyDays" json:"everyDays"`
+	EveryDays int       `firestore:"everyDays" json:"everyDays"`
 }
 
 type PetMedicine struct {
