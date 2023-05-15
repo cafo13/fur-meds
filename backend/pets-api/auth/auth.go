@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"context"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"firebase.google.com/go/v4/auth"
@@ -41,12 +41,11 @@ func (a FirebaseAuthMiddleware) Middleware() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Request = ctx.Request.WithContext(context.WithValue(ctx, userContextKey, User{
+		ctx.Set("user", User{
 			UID:   token.UID,
 			Email: token.Claims["email"].(string),
-		}))
+		})
 
-		ctx.Params = append(ctx.Params)
 		ctx.Next()
 	}
 }
@@ -64,9 +63,6 @@ func (a FirebaseAuthMiddleware) tokenFromHeader(r *http.Request) string {
 type User struct {
 	UID   string
 	Email string
-	Role  string
-
-	DisplayName string
 }
 
 type ctxKey int
@@ -79,10 +75,24 @@ var (
 	ErrNoUserInContext = errors.New("auth error: no user in context")
 )
 
-func UserFromCtx(ctx context.Context) (User, error) {
-	u, ok := ctx.Value(userContextKey).(User)
+func UserFromCtx(ctx *gin.Context) (User, error) {
+	user, ok := ctx.Get("user")
 	if ok {
-		return u, nil
+		reflectUser := reflect.ValueOf(user)
+		if reflectUser.IsZero() {
+			return User{}, errors.New("auth error: user in context was zero value")
+		}
+		userUid := reflectUser.FieldByName("UID")
+		userMail := reflectUser.FieldByName("Email")
+
+		if userUid.IsZero() {
+			return User{}, errors.New("auth error: user UID in context was zero value")
+		}
+
+		return User{
+			UID:   userUid.String(),
+			Email: userMail.String(),
+		}, nil
 	}
 
 	return User{}, ErrNoUserInContext

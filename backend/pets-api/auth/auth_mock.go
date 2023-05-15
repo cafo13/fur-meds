@@ -46,10 +46,8 @@ func (a MockAuthMiddleware) Middleware() gin.HandlerFunc {
 		}
 
 		ctx.Request = ctx.Request.WithContext(context.WithValue(ctx, userContextKey, User{
-			UID:         claims["user_uid"].(string),
-			Email:       claims["email"].(string),
-			Role:        claims["role"].(string),
-			DisplayName: claims["name"].(string),
+			UID:   claims["user_uid"].(string),
+			Email: claims["email"].(string),
 		}))
 
 		ctx.Next()
