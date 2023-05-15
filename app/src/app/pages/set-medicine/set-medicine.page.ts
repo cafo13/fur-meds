@@ -86,13 +86,13 @@ export class SetMedicinePage implements OnInit {
             const frequency: PetMedicineFrequency = {
               uuid: dataForUpdate ? dataForUpdate.uuid : uuidv4(),
               time: values['time'],
-              everyDays: values['everyDays'],
+              everyDays: +values['everyDays'],
             };
             if (mode === 'Update') {
               for (let existingFrequency of this.medicine.frequencies) {
                 if (frequency.uuid === dataForUpdate?.uuid) {
                   existingFrequency.time = frequency.time;
-                  existingFrequency.everyDays = frequency.everyDays;
+                  existingFrequency.everyDays = +frequency.everyDays;
                 }
               }
             } else {

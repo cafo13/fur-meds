@@ -9,11 +9,11 @@ export class PhotoService {
 
   public async getPhoto(): Promise<string | undefined> {
     const photo = await Camera.getPhoto({
-      resultType: CameraResultType.Uri,
+      resultType: CameraResultType.DataUrl,
       source: CameraSource.Camera,
       quality: 100,
     });
 
-    return photo.webPath;
+    return photo.dataUrl;
   }
 }

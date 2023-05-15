@@ -70,11 +70,11 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
-  // delete a pet
-  public deletePet(uuid: string): Observable<unknown> {
+  // delete a pet, returns the new full pet list
+  public deletePet(uuid: string): Observable<Pet[]> {
     const headers = this.getHeaders();
     return this.http
-      .delete(`${this.apiBaseDomain}/pet/${uuid}`, { headers })
+      .delete<Pet[]>(`${this.apiBaseDomain}/pet/${uuid}`, { headers })
       .pipe(catchError(this.handleError));
   }
 }
