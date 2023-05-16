@@ -22,4 +22,9 @@ export class RegistrationPage {
     await this.auth.SignUp(userMail, userPassword);
     await this.dismissModal();
   }
+
+  async signInWithGoogle() {
+    await this.auth.SignInWithGoogle();
+    await this.dismissModal();
+  }
 }

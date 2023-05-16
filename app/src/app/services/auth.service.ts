@@ -28,6 +28,20 @@ export class AuthService {
     });
   }
 
+  get isLoggedIn(): boolean {
+    const user = JSON.parse(localStorage.getItem('user')!);
+    return user !== null ? true : false;
+  }
+
+  get currentUserUid(): string | undefined {
+    const user = JSON.parse(localStorage.getItem('user')!);
+    if (user !== null && user.uid) {
+      return user.uid;
+    }
+
+    return undefined;
+  }
+
   async SignIn(email: string, password: string) {
     return this.fireAuth
       .signInWithEmailAndPassword(email, password)
@@ -55,11 +69,6 @@ export class AuthService {
       localStorage.removeItem('user');
       this.router.navigate(['/tabs/account']);
     });
-  }
-
-  get isLoggedIn(): boolean {
-    const user = JSON.parse(localStorage.getItem('user')!);
-    return user !== null ? true : false;
   }
 
   async SignUp(email: string, password: string) {

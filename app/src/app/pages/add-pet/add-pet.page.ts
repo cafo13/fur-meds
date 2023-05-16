@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Pet, PetSpecies } from '../../types/types';
 import { PhotoService } from '../../services/photo.service';
+import { FileStorageService } from 'src/app/services/file-storage.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-add-pet',
@@ -20,7 +22,9 @@ export class AddPetPage {
 
   constructor(
     private modalCtrl: ModalController,
-    private photoService: PhotoService
+    private photoService: PhotoService,
+    private auth: AuthService,
+    private fileStorage: FileStorageService
   ) {
     this.pet = {
       uuid: uuidv4(),
@@ -45,6 +49,15 @@ export class AddPetPage {
   }
 
   async addPicture() {
-    this.pet.image = await this.photoService.getPhoto();
+    const imageDataUrl = await this.photoService.getPhoto();
+    const userUid = this.auth.currentUserUid;
+
+    if (imageDataUrl && userUid) {
+      this.pet.image = await this.fileStorage.uploadFile(
+        userUid,
+        this.pet.uuid,
+        imageDataUrl
+      );
+    }
   }
 }

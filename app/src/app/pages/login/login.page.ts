@@ -38,4 +38,9 @@ export class LoginPage {
     await this.auth.SignIn(userMail, userPassword);
     await this.dismissModal();
   }
+
+  async signInWithGoogle() {
+    await this.auth.SignInWithGoogle();
+    await this.dismissModal();
+  }
 }

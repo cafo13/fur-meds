@@ -9,6 +9,7 @@ import { environment } from './environments/environment';
 import { HttpClientModule } from '@angular/common/http';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 
 if (environment.production) {
   enableProdMode();
@@ -17,7 +18,11 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    importProvidersFrom(IonicModule.forRoot({})),
+    importProvidersFrom(
+      IonicModule.forRoot({
+        mode: 'md',
+      })
+    ),
     provideRouter(routes),
     importProvidersFrom(BrowserModule),
     importProvidersFrom(HttpClientModule),
@@ -25,5 +30,6 @@ bootstrapApplication(AppComponent, {
       AngularFireModule.initializeApp(environment.firebaseConfig)
     ),
     importProvidersFrom(AngularFireAuthModule),
+    importProvidersFrom(AngularFireStorageModule),
   ],
 });
