@@ -1,12 +1,11 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title> Account </ion-title>
-    <ion-icon
-      name="log-out-sharp"
-      slot="end"
-      (click)="auth.SignOut()"
-      *ngIf="auth.isLoggedIn"
-    ></ion-icon>
+    <ion-buttons slot="secondary">
+      <ion-button (click)="auth.SignOut()" *ngIf="auth.isLoggedIn">
+        <ion-icon slot="icon-only" name="log-out-sharp"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 

@@ -27,18 +27,11 @@ export class PetsPage implements OnInit {
     protected auth: AuthService
   ) {}
 
-  async ngOnInit() {
-    // const obs = getMyObservable().pipe(
-    //   // Let's assume 'obs' returns an array
-    //   tap(() => console.log('Action performed before any other')),
-    //   catchError(() => {
-    //     console.error('Error emitted');
-    //     return of([]);
-    //   }), // We return [] instead
-    //   finalize(() => console.log('Action to be executed always')) // Either Error or Success
-    // );
-    // obs.subscribe((data) => console.log(data)); // After everything, we log the output.
+  ngOnInit() {
+    this.loadPets();
+  }
 
+  loadPets() {
     this.myPets$ = this.api.getPets().pipe(
       tap(() => console.log('Action performed before any other')),
       catchError((err) => {
@@ -68,7 +61,22 @@ export class PetsPage implements OnInit {
 
     const { data, role } = await modal.onWillDismiss();
     if (role !== 'cancel') {
-      this.myPets$ = this.api.updatePet(data);
+      this.myPets$ = this.api.updatePet(data).pipe(
+        tap(() => console.log('Action performed before any other')),
+        catchError((err) => {
+          this.toastCtrl
+            .create({
+              message: err.message,
+              position: 'middle',
+              color: 'danger',
+              duration: 10000,
+            })
+            .then((toast) => toast.present());
+          console.error('Error emitted');
+          return of([]);
+        }),
+        finalize(() => console.log('Action to be executed always'))
+      );
     }
   }
 
@@ -83,7 +91,22 @@ export class PetsPage implements OnInit {
     const { data, role } = await modal.onWillDismiss();
 
     if (role !== 'cancel') {
-      this.myPets$ = this.api.addPet(data);
+      this.myPets$ = this.api.addPet(data).pipe(
+        tap(() => console.log('Action performed before any other')),
+        catchError((err) => {
+          this.toastCtrl
+            .create({
+              message: err.message,
+              position: 'middle',
+              color: 'danger',
+              duration: 10000,
+            })
+            .then((toast) => toast.present());
+          console.error('Error emitted');
+          return of([]);
+        }),
+        finalize(() => console.log('Action to be executed always'))
+      );
     }
   }
 }
