@@ -41,10 +41,13 @@ func (a FirebaseAuthMiddleware) Middleware() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set("user", User{
+		user := User{
 			UID:   token.UID,
 			Email: token.Claims["email"].(string),
-		})
+		}
+		ctx.Set("user", user)
+
+		log.Infof("setting user %+v to context value 'user'", user)
 
 		ctx.Next()
 	}
@@ -77,6 +80,8 @@ var (
 
 func UserFromCtx(ctx *gin.Context) (User, error) {
 	user, ok := ctx.Get("user")
+	log.Infof("got user %+v from context value 'user'", user)
+
 	if ok {
 		reflectUser := reflect.ValueOf(user)
 		if reflectUser.IsZero() {

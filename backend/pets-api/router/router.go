@@ -51,6 +51,7 @@ func (r Router) GetPets(ctx *gin.Context) {
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
 	}
 
 	pets, err := r.PetsRepository.GetPets(ctx, user.UID)
@@ -80,6 +81,7 @@ func (r Router) AddPet(ctx *gin.Context) {
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
 	}
 
 	pets, err := r.PetsRepository.AddPet(ctx, user.UID, pet)
@@ -109,6 +111,7 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
 	}
 
 	_, err = r.PetsRepository.GetPet(ctx, user.UID, pet.UUID.String())
@@ -161,6 +164,7 @@ func (r Router) DeletePet(ctx *gin.Context) {
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
 	}
 
 	petUUID := ctx.Params.ByName("uuid")
