@@ -68,3 +68,6 @@ app/typings
 # System files
 .DS_Store
 Thumbs.db
+
+keystore.jks
+key.json
