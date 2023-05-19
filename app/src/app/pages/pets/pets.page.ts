@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 
 import { PetPage } from '../pet/pet.page';
 import { Pet } from '../../types/types';
 import { AddPetPage } from '../add-pet/add-pet.page';
 
 import { ApiService } from 'src/app/services/api.service';
-import { Observable } from 'rxjs';
+import { Observable, catchError, finalize, of, tap } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -17,15 +17,44 @@ import { AuthService } from 'src/app/services/auth.service';
   standalone: true,
   imports: [IonicModule, CommonModule],
 })
-export class PetsPage {
-  myPets$: Observable<Pet[]>;
+export class PetsPage implements OnInit {
+  myPets$: Observable<Pet[]> | undefined;
 
   constructor(
     private modalCtrl: ModalController,
+    private toastCtrl: ToastController,
     private api: ApiService,
     protected auth: AuthService
-  ) {
-    this.myPets$ = api.getPets();
+  ) {}
+
+  async ngOnInit() {
+    // const obs = getMyObservable().pipe(
+    //   // Let's assume 'obs' returns an array
+    //   tap(() => console.log('Action performed before any other')),
+    //   catchError(() => {
+    //     console.error('Error emitted');
+    //     return of([]);
+    //   }), // We return [] instead
+    //   finalize(() => console.log('Action to be executed always')) // Either Error or Success
+    // );
+    // obs.subscribe((data) => console.log(data)); // After everything, we log the output.
+
+    this.myPets$ = this.api.getPets().pipe(
+      tap(() => console.log('Action performed before any other')),
+      catchError((err) => {
+        this.toastCtrl
+          .create({
+            message: err.message,
+            position: 'middle',
+            color: 'danger',
+            duration: 10000,
+          })
+          .then((toast) => toast.present());
+        console.error('Error emitted');
+        return of([]);
+      }),
+      finalize(() => console.log('Action to be executed always'))
+    );
   }
 
   async openPetModal(pet: Pet) {

@@ -2,7 +2,6 @@ import {
   HttpClient,
   HttpErrorResponse,
   HttpHeaders,
-  HttpParams,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
@@ -40,10 +39,9 @@ export class ApiService {
       );
     }
 
-    return throwError(() => {
-      console.error(error);
-      new Error('Something bad happened; please try again later');
-    });
+    return throwError(
+      () => new Error(`Error, please try again later: ${error.error}`)
+    );
   }
 
   // get the full pet list
