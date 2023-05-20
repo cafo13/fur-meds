@@ -30,8 +30,16 @@ jobs:
         working-directory: ./app/ios/App
         run: |
           gem install bundler:2.4.13
+          gem install json-2.6.3
+          gem install digest-crc-0.6.4
+          gem install unf_ext-0.0.8.2
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
+      - name: Install fastlane plugins
+        working-directory: ./app/ios/App
+        run: bundle exec fastlane install_plugins
+      - name: Decode signing certificate into a file
+        run: echo "${{ secrets.IOS_DIST_SIGNING_KEY }}" | base64 -d > > ${GITHUB_WORKSPACE}/app/ios/App/signing-cert.p12
       - id: semver
         name: Git Semantic Version
         uses: PaulHatch/semantic-version@v5.0.3
@@ -70,11 +78,6 @@ jobs:
           npm ci
           ng build --configuration production
           npx cap sync ios
-      - name: Install fastlane plugins
-        working-directory: ./app/ios/App
-        run: bundle exec fastlane install_plugins
-      - name: Decode signing certificate into a file
-        run: echo "${{ secrets.IOS_DIST_SIGNING_KEY }}" | base64 -d > signing-cert.p12
       - name: Build and deploy app
         run: bundle exec fastlane ios build_upload_testflight
         env:
