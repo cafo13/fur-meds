@@ -1,46 +1,37 @@
-name: android-app
+name: ios-app
 
 on:
   push:
     branches: ["main"]
     paths:
       - app/**
-      - .github/workflows/android_app.yml
+      - .github/workflows/ios_app.yml
   pull_request:
     branches: ["main"]
     paths:
       - app/**
-      - .github/workflows/android_app.yml
+      - .github/workflows/ios_app.yml
 
 jobs:
   build_and_deploy:
-    name: Build and deploy android app
-    runs-on: ubuntu-latest
+    name: Build and deploy ios app
+    runs-on: macos-latest
     steps:
       - name: Check out Code
         uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
           bundler-cache: true
       - name: Install bundler and fastlane
-        working-directory: ./app/android
+        working-directory: ./app/ios/App
         run: |
           gem install bundler:2.4.13
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
-      - name: Generate google services json file
-        run: echo "${{ secrets.GOOGLE_SERVICES_KEY_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/key.json
-      - name: Generate keystore jks file
-        run: echo "${{ secrets.KEYSTORE_JKS_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/keystore.jks
       - id: semver
         name: Git Semantic Version
         uses: PaulHatch/semantic-version@v5.0.3
@@ -72,21 +63,22 @@ jobs:
           # Prevents pre-v1.0.0 version from automatically incrementing the major version.
           # If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged.
           enable_prerelease_mode: true
-      - name: Build web app and sync to android directory
+      - name: Build web app and sync to ios directory
         working-directory: ./app
         run: |
           npm i -g @angular/cli
           npm ci
           ng build --configuration production
-          npx cap sync android
+          npx cap sync ios
       - name: Install fastlane plugins
-        working-directory: ./app/android
+        working-directory: ./app/ios/App
         run: bundle exec fastlane install_plugins
-      - name: Build and deploy app bundle to play store
-        working-directory: ./app/android
+      - name: Decode signing certificate into a file
+        run: echo "${{ secrets.IOS_DIST_SIGNING_KEY }}" | base64 -d > signing-cert.p12
+      - name: Build and deploy app
+        run: bundle exec fastlane ios build_upload_testflight
         env:
-          ANDROID_DEPLOY_TRACK: internal
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_ALIAS_KEY_NAME: ${{ secrets.ANDROID_ALIAS_KEY_NAME }}
-          ANDROID_ALIAS_KEY_PASSWORD: ${{ secrets.ANDROID_ALIAS_KEY_PASSWORD }}
-        run: bundle exec fastlane deploy version:${{ steps.semver.outputs.version }}
+          ASC_KEY_ID: ${{ secrets.IOS_ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.IOS_ASC_ISSUER_ID }}
+          ASC_KEY: ${{ secrets.IOS_ASC_PRIVATE_KEY }}
+          SIGNING_KEY_FILE_PATH: signing-cert.p12

@@ -71,3 +71,4 @@ Thumbs.db
 
 keystore.jks
 key.json
+signing-cert.p12
