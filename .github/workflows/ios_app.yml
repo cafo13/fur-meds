@@ -25,11 +25,13 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
-          bundler-cache: true
       - name: Install bundler and fastlane
         working-directory: ./app/ios/App
         run: |
           gem install bundler:2.4.13
+          gem install json:2.6.3
+          gem install digest-crc:0.6.4
+          gem install unf_ext:0.0.8.2
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
       - name: Decode signing certificate into a file
@@ -73,9 +75,6 @@ jobs:
           npm i -g @angular/cli
           npm ci
           ng build --configuration production
-          gem install json:2.6.3
-          gem install digest-crc:0.6.4
-          gem install unf_ext:0.0.8.2
           npx cap sync ios
       - name: Build and deploy app
         working-directory: ./app/ios/App
