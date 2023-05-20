@@ -71,7 +71,7 @@ jobs:
       - name: Build web app and sync to ios directory
         working-directory: ./app
         env:
-          BUNDLE_GEMFILE: ${GITHUB_WORKSPACE}/app/ios/App/Gemfile
+          BUNDLE_GEMFILE: Gemfile
         run: |
           npm i -g @angular/cli
           npm ci
