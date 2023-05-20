@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -24,11 +24,14 @@ export class AddPetPage {
     private modalCtrl: ModalController,
     private photoService: PhotoService,
     private auth: AuthService,
-    private fileStorage: FileStorageService
+    private fileStorage: FileStorageService,
+    private toastCtrl: ToastController
   ) {
     this.pet = {
       uuid: uuidv4(),
       name: '',
+      species: undefined,
+      image: '',
     };
   }
 
@@ -37,6 +40,42 @@ export class AddPetPage {
   }
 
   save() {
+    if (!this.pet.name) {
+      this.toastCtrl
+        .create({
+          message: 'Please fill in a name',
+          position: 'middle',
+          color: 'danger',
+          duration: 5000,
+        })
+        .then((toast) => toast.present());
+      return;
+    }
+
+    if (!this.pet.species) {
+      this.toastCtrl
+        .create({
+          message: 'Please fill in a species',
+          position: 'middle',
+          color: 'danger',
+          duration: 5000,
+        })
+        .then((toast) => toast.present());
+      return;
+    }
+
+    if (!this.pet.image) {
+      this.toastCtrl
+        .create({
+          message: 'Please upload an image',
+          position: 'middle',
+          color: 'danger',
+          duration: 5000,
+        })
+        .then((toast) => toast.present());
+      return;
+    }
+
     return this.modalCtrl.dismiss(this.pet, 'save');
   }
 

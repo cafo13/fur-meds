@@ -31,8 +31,8 @@ export type PetFood = {
 export type Pet = {
   uuid: string;
   name: string;
-  species?: PetSpecies;
-  image?: string;
+  species: PetSpecies | undefined;
+  image: string;
   medicines?: PetMedicine[];
   foods?: PetFood[];
 };

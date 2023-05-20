@@ -41,4 +41,8 @@ export class AccountPage {
       // something to do here?
     }
   }
+
+  async signInWithGoogle() {
+    await this.auth.SignInWithGoogle();
+  }
 }

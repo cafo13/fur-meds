@@ -70,12 +70,15 @@ jobs:
           enable_prerelease_mode: true
       - name: Build web app and sync to ios directory
         working-directory: ./app
+        env:
+          BUNDLE_GEMFILE: ./ios/App/Gemfile
         run: |
           npm i -g @angular/cli
           npm ci
           ng build --configuration production
           npx cap sync ios
       - name: Build and deploy app
+        working-directory: ./app/ios/App
         run: bundle exec fastlane ios build_upload_testflight
         env:
           ASC_KEY_ID: ${{ secrets.IOS_ASC_KEY_ID }}

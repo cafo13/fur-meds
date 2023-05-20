@@ -90,7 +90,7 @@ export class SetMedicinePage implements OnInit {
             };
             if (mode === 'Update') {
               for (let existingFrequency of this.medicine.frequencies) {
-                if (frequency.uuid === dataForUpdate?.uuid) {
+                if (existingFrequency.uuid === dataForUpdate?.uuid) {
                   existingFrequency.time = frequency.time;
                   existingFrequency.everyDays = +frequency.everyDays;
                 }
