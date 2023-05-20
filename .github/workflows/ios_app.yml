@@ -70,7 +70,7 @@ jobs:
       - name: Build web app and sync to ios directory
         working-directory: ./app
         env:
-          BUNDLE_GEMFILE: Gemfile
+          BUNDLE_GEMFILE: ./ios/App/Gemfile
         run: |
           npm i -g @angular/cli
           npm ci
