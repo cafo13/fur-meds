@@ -24,7 +24,7 @@ jobs:
           node-version: '18.x'
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.0'
+          ruby-version: '3.1'
       - name: Install bundler and fastlane
         working-directory: ./app/ios/App
         run: |
@@ -75,6 +75,7 @@ jobs:
           npm i -g @angular/cli
           npm ci
           ng build --configuration production
+          bundle install --jobs 4 --retry 3
           npx cap sync ios
       - name: Build and deploy app
         working-directory: ./app/ios/App
