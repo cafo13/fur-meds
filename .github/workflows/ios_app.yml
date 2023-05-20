@@ -69,8 +69,6 @@ jobs:
           enable_prerelease_mode: true
       - name: Build web app and sync to ios directory
         working-directory: ./app
-        env:
-          BUNDLE_GEMFILE: ./ios/App/Gemfile
         run: |
           npm i -g @angular/cli
           npm ci
