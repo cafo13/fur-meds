@@ -1,0 +1,8 @@
+{
+	"appId": "com.cf.furmeds",
+	"appName": "fur-meds",
+	"webDir": "www",
+	"server": {
+		"androidScheme": "https"
+	}
+}

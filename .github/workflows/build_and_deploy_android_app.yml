@@ -1,0 +1,67 @@
+name: build_and_deploy_android_app
+
+on:
+  workflow_run:
+    workflows: ["build_web_app"]
+    branches: ["main"]
+    types:
+      - completed
+
+jobs:
+  build_and_deploy_android_app:
+    name: Build and deploy android app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download www directory artifacts
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build_web_app.yml
+          workflow_conclusion: success
+          commit: ${{ github.event.workflow_run.head_sha }}
+          event: push
+          name: www
+          name_is_regexp: true
+          if_no_artifact_found: fail
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+      - name: Install bundler and fastlane
+        working-directory: ./app/android
+        run: |
+          gem install bundler:2.4.13
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+      - name: Generate google services json file
+        run: echo "${{ secrets.GOOGLE_SERVICES_KEY_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/key.json
+      - name: Generate keystore jks file
+        run: echo "${{ secrets.KEYSTORE_JKS_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/keystore.jks
+      - name: Sync downloaded www directory to android directory
+        working-directory: ./app
+        run: |
+          mkdir -p android/app/src/main/assets/public
+          cp -r www/* android/app/src/main/assets/public
+      - name: Install fastlane plugins
+        working-directory: ./app/android
+        run: bundle exec fastlane install_plugins
+      - name: Build and deploy app bundle to play store
+        working-directory: ./app/android
+        env:
+          ANDROID_DEPLOY_TRACK: internal
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_ALIAS_KEY_NAME: ${{ secrets.ANDROID_ALIAS_KEY_NAME }}
+          ANDROID_ALIAS_KEY_PASSWORD: ${{ secrets.ANDROID_ALIAS_KEY_PASSWORD }}
+        run: bundle exec fastlane deploy version:${{ steps.semver.outputs.version }}

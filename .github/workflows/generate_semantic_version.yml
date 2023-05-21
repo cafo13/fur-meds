@@ -1,0 +1,44 @@
+name: generate_semantic_version
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - app/**
+      - backend/**
+      - .github/workflows/**
+
+jobs:
+  generate_semantic_version:
+    name: Generate semantic release version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: semver
+        name: Git Semantic Version
+        uses: PaulHatch/semantic-version@v5.0.3
+        with:
+          tag_prefix: "v"
+          major_pattern: "(MAJOR)"
+          major_regexp_flags: ""
+          minor_pattern: "(MINOR)"
+          minor_regexp_flags: ""
+          version_format: "${major}.${minor}.${patch}-prerelease${increment}"
+          change_path: "backend/pets-api"
+          bump_each_commit: true
+          search_commit_body: true
+          user_format_type: "json"
+          enable_prerelease_mode: true
+      - name: Create version.txt
+        env:
+          VERSION: ${{ steps.semver.outputs.version }}
+        run: echo "${VERSION}" > version.txt
+      - name: Upload version.txt
+        uses: actions/upload-artifact@v3
+        with:
+          name: version
+          path: version.txt
+          retention-days: 3
