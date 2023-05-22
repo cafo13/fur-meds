@@ -1,0 +1,219 @@
+name: generate_semantic_version
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - app/**
+      - backend/**
+      - .github/workflows/**
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+
+  # prepare version
+  generate_semantic_version:
+    name: Generate semantic version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.semver.outputs.version }}
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: semver
+        name: Git Semantic Version
+        uses: PaulHatch/semantic-version@v5.0.3
+        with:
+          tag_prefix: "v"
+          major_pattern: "(MAJOR)"
+          major_regexp_flags: ""
+          minor_pattern: "(MINOR)"
+          minor_regexp_flags: ""
+          version_format: "${major}.${minor}.${patch}-prerelease${increment}"
+          change_path: "backend/pets-api"
+          bump_each_commit: true
+          search_commit_body: true
+          user_format_type: "json"
+          enable_prerelease_mode: true
+
+  # prepare web build
+  build_web_app:
+    name: Build web app
+    needs: [generate_semantic_version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Build web app
+        working-directory: ./app
+        run: |
+          npm i -g @angular/cli
+          npm ci
+          ng build --configuration production
+      - name: Upload www as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: www
+          path: app/www
+          retention-days: 3
+
+  # test pets api
+  test_pets_api:
+    name: test pets api
+    runs-on: ubuntu-latest
+    container:
+      image: golang:1.19.4
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: install dependencies
+        run: go mod download
+        working-directory: ./backend/pets-api
+      - name: run tests
+        run: go test ./...
+        working-directory: ./backend/pets-api
+
+  # build and deploy pets api
+  build_and_deploy_pets_api:
+    name: Build and deploy pets api
+    needs: [generate_semantic_version, test_pets_api]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env:
+      IMAGE_NAME: ${{ github.repository }}/pets-api
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+      - id: auth
+        name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ secrets.REGISTRY_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.REGISTRY_SERVICE_ACCOUNT }}
+          access_token_lifetime: 300s
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v1
+        with:
+          registry: europe-west4-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+      - id: docker-push-tagged
+        name: Tag Docker image and push to Google Artifact Registry
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend/pets-api
+          push: true
+          tags: |
+             europe-west4-docker.pkg.dev/fur-meds-project/fur-meds/pets-api:${{ needs.generate_semantic_version.outputs.version }}
+             europe-west4-docker.pkg.dev/fur-meds-project/fur-meds/pets-api:latest
+
+  build_and_deploy_android_app:
+    name: Build and deploy android app
+    needs: [generate_semantic_version, build_web_app]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v3
+        with:
+          name: www
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+      - name: Install bundler and fastlane
+        working-directory: ./app/android
+        run: |
+          gem install bundler:2.4.13
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+      - name: Generate google services json file
+        run: echo "${{ secrets.GOOGLE_SERVICES_KEY_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/key.json
+      - name: Generate keystore jks file
+        run: echo "${{ secrets.KEYSTORE_JKS_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/keystore.jks
+      - name: Sync downloaded www directory to android directory
+        working-directory: ./app
+        run: |
+          mkdir -p android/app/src/main/assets/public
+          cp -r www/* android/app/src/main/assets/public
+      - name: Install fastlane plugins
+        working-directory: ./app/android
+        run: bundle exec fastlane install_plugins
+      - name: Build and deploy app bundle to play store
+        working-directory: ./app/android
+        env:
+          ANDROID_APP_VERSION: ${{ needs.generate_semantic_version.outputs.version }}
+          ANDROID_DEPLOY_TRACK: internal
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_ALIAS_KEY_NAME: ${{ secrets.ANDROID_ALIAS_KEY_NAME }}
+          ANDROID_ALIAS_KEY_PASSWORD: ${{ secrets.ANDROID_ALIAS_KEY_PASSWORD }}
+        run: bundle exec fastlane deploy
+
+  build_and_deploy_ios_app:
+    name: Build and deploy ios app
+    needs: [generate_semantic_version, build_web_app]
+    runs-on: macos-latest
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v3
+        with:
+          name: www
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+      - name: Install bundler and fastlane
+        working-directory: ./app/ios/App
+        run: |
+          gem install bundler:2.4.13
+          gem install json:2.6.3
+          gem install digest-crc:0.6.4
+          gem install unf_ext:0.0.8.2
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+      - name: Decode signing certificate into a file
+        run: echo "${{ secrets.IOS_DIST_SIGNING_KEY }}" | base64 -d > ${GITHUB_WORKSPACE}/app/ios/App/signing-cert.p12
+      - name: Sync downloaded www directory to ios directory
+        working-directory: ./app
+        run: |
+          mkdir -p ios/App/App/public
+          cp -r www/* ios/App/App/public/
+      - name: Build and deploy app
+        working-directory: ./app/ios/App
+        run: bundle exec fastlane ios build_upload_testflight
+        env:
+          IOS_APP_VERSION: ${{ needs.generate_semantic_version.outputs.version }}
+          ASC_KEY_ID: ${{ secrets.IOS_ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.IOS_ASC_ISSUER_ID }}
+          ASC_KEY: ${{ secrets.IOS_ASC_PRIVATE_KEY }}
+          SIGNING_KEY_FILE_PATH: signing-cert.p12
