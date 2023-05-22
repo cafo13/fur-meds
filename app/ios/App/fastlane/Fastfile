@@ -72,7 +72,6 @@ platform :ios do
 
   update_code_signing_settings(
     use_automatic_signing: false,
-    targets: ["main-target"],
     code_sign_identity: "iOS Distribution",
     bundle_identifier: app_identifier,
     profile_name: profile_name,
