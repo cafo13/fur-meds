@@ -1,4 +1,4 @@
-name: generate_semantic_version
+name: fur_meds
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
           major_regexp_flags: ""
           minor_pattern: "(MINOR)"
           minor_regexp_flags: ""
-          version_format: "${major}.${minor}.${patch}-prerelease${increment}"
+          version_format: "${major}.${minor}.${patch}"
           change_path: "backend/pets-api"
           bump_each_commit: true
           search_commit_body: true
@@ -134,6 +134,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: www
+          path: app/www/
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
@@ -186,6 +187,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: www
+          path: app/www/
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
