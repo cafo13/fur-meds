@@ -147,21 +147,22 @@ jobs:
         with:
           ruby-version: '3.0'
           bundler-cache: true
+      - name: Generate google services json file
+        run: echo "${{ secrets.GOOGLE_SERVICES_KEY_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/key.json
+      - name: Generate keystore jks file
+        run: echo "${{ secrets.KEYSTORE_JKS_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/keystore.jks
       - name: Install bundler and fastlane
         working-directory: ./app/android
         run: |
           gem install bundler:2.4.13
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
-      - name: Generate google services json file
-        run: echo "${{ secrets.GOOGLE_SERVICES_KEY_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/key.json
-      - name: Generate keystore jks file
-        run: echo "${{ secrets.KEYSTORE_JKS_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/keystore.jks
       - name: Sync downloaded www directory to android directory
         working-directory: ./app
         run: |
-          mkdir -p android/app/src/main/assets/public
-          cp -r www/* android/app/src/main/assets/public
+          npm i -g @angular/cli
+          npm ci
+          npx cap sync android
       - name: Install fastlane plugins
         working-directory: ./app/android
         run: bundle exec fastlane install_plugins
@@ -194,6 +195,8 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.1'
+      - name: Decode signing certificate into a file
+        run: echo "${{ secrets.IOS_DIST_SIGNING_KEY }}" | base64 -d > ${GITHUB_WORKSPACE}/app/ios/App/signing-cert.p12
       - name: Install bundler and fastlane
         working-directory: ./app/ios/App
         run: |
@@ -203,13 +206,12 @@ jobs:
           gem install unf_ext:0.0.8.2
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
-      - name: Decode signing certificate into a file
-        run: echo "${{ secrets.IOS_DIST_SIGNING_KEY }}" | base64 -d > ${GITHUB_WORKSPACE}/app/ios/App/signing-cert.p12
       - name: Sync downloaded www directory to ios directory
         working-directory: ./app
         run: |
-          mkdir -p ios/App/App/public
-          cp -r www/* ios/App/App/public/
+          npm i -g @angular/cli
+          npm ci
+          npx cap sync ios
       - name: Build and deploy app
         working-directory: ./app/ios/App
         run: bundle exec fastlane ios build_upload_testflight
