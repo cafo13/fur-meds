@@ -206,12 +206,15 @@ jobs:
           gem install digest-crc:0.6.4
           gem install unf_ext:0.0.8.2
           bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
       - name: Sync downloaded www directory to ios directory
         working-directory: ./app
         run: |
           npm i -g @angular/cli
           npm ci
+          cd ios/App
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+          cd ../..
           npx cap sync ios
       - name: Build and deploy app
         working-directory: ./app/ios/App
