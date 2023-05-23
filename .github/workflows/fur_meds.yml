@@ -163,9 +163,6 @@ jobs:
         run: |
           npm ci
           npx cap sync android
-      - name: Install fastlane plugins
-        working-directory: ./app/android
-        run: bundle exec fastlane install_plugins
       - name: Build and deploy app bundle to play store
         working-directory: ./app/android
         env:

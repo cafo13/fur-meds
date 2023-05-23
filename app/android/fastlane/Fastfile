@@ -1,18 +1,3 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
 default_platform(:android)
 
 platform :android do
@@ -35,14 +20,15 @@ platform :android do
   lane :deploy do
     releaseFilePath = File.join(Dir.pwd, "..", "keystore.jks")
     gradle(task: 'clean')
-    increment_version_code(
-      gradle_file_path: "app/build.gradle",
+    versionCode = google_play_track_version_codes(
+      track: ENV['ANDROID_DEPLOY_TRACK']
     )
     gradle(
       task: 'bundle',
       build_type: 'Release',
       print_command: false,
       properties: {
+        "android.injected.version.code" => versionCode,
         "android.injected.version.name" => ENV["ANDROID_APP_VERSION"],
         "android.injected.signing.store.file" => releaseFilePath,
         "android.injected.signing.store.password" => ENV['ANDROID_KEYSTORE_PASSWORD'],
