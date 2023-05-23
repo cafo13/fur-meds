@@ -70,7 +70,7 @@ platform :ios do
 
   update_code_signing_settings(
     use_automatic_signing: false,
-    code_sign_identity: "iOS Distribution",
+    code_sign_identity: "Yannik Foth",
     bundle_identifier: app_identifier,
     profile_name: profile_name,
     build_configurations: ["Release"]
