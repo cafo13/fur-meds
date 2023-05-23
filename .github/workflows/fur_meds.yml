@@ -34,7 +34,7 @@ jobs:
           minor_pattern: "(MINOR)"
           minor_regexp_flags: ""
           version_format: "${major}.${minor}.${patch}"
-          change_path: "backend/pets-api"
+          change_path: "backend/pets-api app"
           bump_each_commit: true
           search_commit_body: true
           user_format_type: "json"
