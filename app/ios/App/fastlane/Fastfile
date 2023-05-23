@@ -64,7 +64,7 @@ platform :ios do
   lane :build_release do |options|
   app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
 
-  profile_name = "iOS Distribution"
+  profile_name = "com.cf.furmeds AppStore"
   output_name = "furmeds"
   export_method = "app-store"
 
