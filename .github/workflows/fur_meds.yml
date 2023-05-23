@@ -161,7 +161,6 @@ jobs:
       - name: Sync downloaded www directory to android directory
         working-directory: ./app
         run: |
-          npm i -g @angular/cli
           npm ci
           npx cap sync android
       - name: Install fastlane plugins
@@ -202,20 +201,14 @@ jobs:
         working-directory: ./app/ios/App
         run: |
           gem install bundler:2.4.13
-          gem install json:2.6.3
-          gem install digest-crc:0.6.4
-          gem install unf_ext:0.0.8.2
           bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
       - name: Sync downloaded www directory to ios directory
         working-directory: ./app
         run: |
-          npm i -g @angular/cli
           npm ci
-          cd ios/App
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
-          cd ../..
-          npx cap sync ios
+          # TODO: change back to "npx cap sync" command (currently fails due to gem dependencies)
+          npx cap copy ios
       - name: Build and deploy app
         working-directory: ./app/ios/App
         run: bundle exec fastlane ios build_upload_testflight
