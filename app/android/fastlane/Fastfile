@@ -23,13 +23,13 @@ platform :android do
     currentVersionCode = google_play_track_version_codes(
       track: ENV['ANDROID_DEPLOY_TRACK']
     )
+    sh("sed", "-i", "'s/versionCode = .*/versionCode = currentVersionCode[0] + 1/g'", "variables.gradle")
+    sh("sed", "-i", "'s/versionName = .*/versionName = "ENV["ANDROID_APP_VERSION"]"/g'","variables.gradle")
     gradle(
       task: 'bundle',
       build_type: 'Release',
       print_command: false,
       properties: {
-        "android.injected.version.code" => currentVersionCode[0] + 1,
-        "android.injected.version.name" => ENV["ANDROID_APP_VERSION"],
         "android.injected.signing.store.file" => releaseFilePath,
         "android.injected.signing.store.password" => ENV['ANDROID_KEYSTORE_PASSWORD'],
         "android.injected.signing.key.alias" => ENV['ANDROID_ALIAS_KEY_NAME'],
