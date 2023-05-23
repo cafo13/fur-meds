@@ -23,8 +23,8 @@ platform :android do
     currentVersionCode = google_play_track_version_codes(
       track: ENV['ANDROID_DEPLOY_TRACK']
     )
-    sh("sed", "-i", "'s/versionCode = .*/versionCode = currentVersionCode[0] + 1/g'", "variables.gradle")
-    sh("sed", "-i", "'s/versionName = .*/versionName = "ENV["ANDROID_APP_VERSION"]"/g'","variables.gradle")
+    newVersionCode = currentVersionCode[0] + 1
+    sh("./set-version.sh", newVersionCode.to_s, ENV['ANDROID_APP_VERSION'])
     gradle(
       task: 'bundle',
       build_type: 'Release',
