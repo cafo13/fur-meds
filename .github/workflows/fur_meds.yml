@@ -39,34 +39,6 @@ jobs:
           search_commit_body: true
           user_format_type: "json"
 
-  # prepare web build
-  build_web_app:
-    name: Build web app
-    needs: [generate_semantic_version]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out Code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-      - name: Generate firebase config file
-        run: echo "${{ secrets.FIREBASE_CONFIG_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/firebase.config.ts
-      - name: Build web app
-        working-directory: ./app
-        run: |
-          npm i -g @angular/cli
-          npm ci
-          ng build --configuration production
-      - name: Upload www as artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: www
-          path: app/www
-          retention-days: 3
-
   # test pets api
   test_pets_api:
     name: test pets api
@@ -123,6 +95,34 @@ jobs:
              europe-west4-docker.pkg.dev/fur-meds-project/fur-meds/pets-api:${{ needs.generate_semantic_version.outputs.version }}
              europe-west4-docker.pkg.dev/fur-meds-project/fur-meds/pets-api:latest
 
+  # prepare web build
+  build_web_app:
+    name: Build web app
+    needs: [generate_semantic_version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Generate firebase config file
+        run: echo "${{ secrets.FIREBASE_CONFIG_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/firebase.config.ts
+      - name: Build web app
+        working-directory: ./app
+        run: |
+          npm i -g @angular/cli
+          npm ci
+          ng build --configuration production
+      - name: Upload www as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: www
+          path: app/www
+          retention-days: 3
+
   build_and_deploy_android_app:
     name: Build and deploy android app
     needs: [generate_semantic_version, build_web_app]
@@ -148,11 +148,12 @@ jobs:
         run: echo "${{ secrets.GOOGLE_SERVICES_KEY_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/key.json
       - name: Generate keystore jks file
         run: echo "${{ secrets.KEYSTORE_JKS_FILE }}" | base64 -d > ${GITHUB_WORKSPACE}/app/android/keystore.jks
+      - name: Install dependencies
+        working-directory: ./app
+        run: npm ci
       - name: Sync downloaded www directory to android directory
         working-directory: ./app
-        run: |
-          npm ci
-          npx cap sync android
+        run: npx cap sync android
       - name: Build and deploy app to internal play store track
         working-directory: ./app/android
         env:
@@ -181,14 +182,15 @@ jobs:
           node-version: '18.x'
       - name: Decode signing certificate into a file
         run: echo "${{ secrets.IOS_DIST_SIGNING_KEY }}" | base64 -d > ${GITHUB_WORKSPACE}/app/ios/App/signing-cert.p12
+      - name: Install dependencies
+        working-directory: ./app
+        run: npm ci
       - name: CocoaPod Install
         working-directory: ./app/ios/App
         run: pod install
       - name: Sync downloaded www directory to ios directory
         working-directory: ./app
-        run: |
-          npm ci
-          npx cap sync ios
+        run: npx cap sync ios
       - name: Build and deploy app to app store connect testflight
         working-directory: ./app/ios/App
         env:
