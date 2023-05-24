@@ -72,3 +72,5 @@ key.json
 signing-cert.p12
 firebase.config.ts
 infrastructure/.env
+infrastructure/terraform.tfstate*
+infrastructure/.terraform.lock.hcl
