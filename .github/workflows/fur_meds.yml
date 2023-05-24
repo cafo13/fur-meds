@@ -211,7 +211,7 @@ jobs:
         run: bundle exec fastlane ios build_upload_testflight
         env:
           IOS_APP_VERSION: ${{ needs.generate_semantic_version.outputs.version }}
-          ASC_KEY_ID: ${{ secrets.IOS_ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.IOS_ASC_ISSUER_ID }}
-          ASC_KEY: ${{ secrets.IOS_ASC_PRIVATE_KEY }}
-          SIGNING_KEY_FILE_PATH: signing-cert.p12
+          IOS_ASC_KEY_ID: ${{ secrets.IOS_ASC_KEY_ID }}
+          IOS_ASC_ISSUER_ID: ${{ secrets.IOS_ASC_ISSUER_ID }}
+          IOS_ASC_PRIVATE_KEY: ${{ secrets.IOS_ASC_PRIVATE_KEY }}
+          IOS_SIGNING_KEY_FILE_PATH: signing-cert.p12
