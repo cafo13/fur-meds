@@ -190,7 +190,7 @@ jobs:
         run: pod install
       - name: Sync downloaded www directory to ios directory
         working-directory: ./app
-        run: npx cap sync ios
+        run: npx cap copy ios
       - name: Build and deploy app to app store connect testflight
         working-directory: ./app/ios/App
         env:
