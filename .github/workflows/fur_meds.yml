@@ -153,7 +153,7 @@ jobs:
         run: |
           npm ci
           npx cap sync android
-      - name: Build and deploy app bundle to play store
+      - name: Build and deploy app to internal play store track
         working-directory: ./app/android
         env:
           ANDROID_APP_VERSION: ${{ needs.generate_semantic_version.outputs.version }}
@@ -181,17 +181,20 @@ jobs:
           node-version: '18.x'
       - name: Decode signing certificate into a file
         run: echo "${{ secrets.IOS_DIST_SIGNING_KEY }}" | base64 -d > ${GITHUB_WORKSPACE}/app/ios/App/signing-cert.p12
+      - name: CocoaPod Install
+        working-directory: ./app/ios/App
+        run: pod install
       - name: Sync downloaded www directory to ios directory
         working-directory: ./app
         run: |
           npm ci
           npx cap sync ios
-      - name: Build and deploy app
+      - name: Build and deploy app to app store connect testflight
         working-directory: ./app/ios/App
-        run: fastlane deploy
         env:
           IOS_APP_VERSION: ${{ needs.generate_semantic_version.outputs.version }}
           IOS_ASC_KEY_ID: ${{ secrets.IOS_ASC_KEY_ID }}
           IOS_ASC_ISSUER_ID: ${{ secrets.IOS_ASC_ISSUER_ID }}
           IOS_ASC_PRIVATE_KEY: ${{ secrets.IOS_ASC_PRIVATE_KEY }}
           IOS_SIGNING_KEY_FILE_PATH: signing-cert.p12
+        run: fastlane deploy
