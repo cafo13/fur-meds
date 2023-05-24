@@ -77,7 +77,7 @@ platform :ios do
   )
 
   gym(
-    scheme: "fur-meds",
+    scheme: "App",
     output_name: output_name,
     configuration: "Release",
     export_options: {
