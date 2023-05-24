@@ -204,7 +204,7 @@ jobs:
         working-directory: ./app
         run: |
           npm ci
-          # TODO: change back to "npx cap sync" command (currently fails due to gem dependencies)
+          npx cap doctor
           npx cap copy ios
       - name: Build and deploy app
         working-directory: ./app/ios/App
