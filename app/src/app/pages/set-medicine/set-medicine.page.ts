@@ -104,7 +104,7 @@ export class SetMedicinePage implements OnInit {
         },
       ],
     });
-    alert.present();
+    await alert.present();
   }
 
   async deleteFrequency(frequency: PetMedicineFrequency) {
@@ -139,6 +139,6 @@ export class SetMedicinePage implements OnInit {
         },
       ],
     });
-    alert.present();
+    await alert.present();
   }
 }

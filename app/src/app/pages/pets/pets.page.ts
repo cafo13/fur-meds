@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { AlertController, IonicModule, ModalController } from '@ionic/angular';
 
 import { PetPage } from '../pet/pet.page';
 import { Pet } from '../../types/types';
@@ -22,7 +22,7 @@ export class PetsPage implements OnInit {
 
   constructor(
     private modalCtrl: ModalController,
-    private toastCtrl: ToastController,
+    private alertCtrl: AlertController,
     private api: ApiService,
     protected auth: AuthService
   ) {}
@@ -35,14 +35,14 @@ export class PetsPage implements OnInit {
     this.myPets$ = this.api.getPets().pipe(
       tap(() => console.log('Action performed before any other')),
       catchError((err) => {
-        this.toastCtrl
+        this.alertCtrl
           .create({
+            header: 'Error',
+            subHeader: 'Failed request on loading pets',
             message: err.message,
-            position: 'middle',
-            color: 'danger',
-            duration: 10000,
+            buttons: ['OK'],
           })
-          .then((toast) => toast.present());
+          .then((alert) => alert.present());
         console.error('Error emitted');
         return of([]);
       }),
@@ -64,14 +64,14 @@ export class PetsPage implements OnInit {
       this.myPets$ = this.api.updatePet(data).pipe(
         tap(() => console.log('Action performed before any other')),
         catchError((err) => {
-          this.toastCtrl
+          this.alertCtrl
             .create({
+              header: 'Error',
+              subHeader: 'Failed request on loading pets after updating pet',
               message: err.message,
-              position: 'middle',
-              color: 'danger',
-              duration: 10000,
+              buttons: ['OK'],
             })
-            .then((toast) => toast.present());
+            .then((alert) => alert.present());
           console.error('Error emitted');
           return of([]);
         }),
@@ -94,14 +94,14 @@ export class PetsPage implements OnInit {
       this.myPets$ = this.api.addPet(data).pipe(
         tap(() => console.log('Action performed before any other')),
         catchError((err) => {
-          this.toastCtrl
+          this.alertCtrl
             .create({
+              header: 'Error',
+              subHeader: 'Failed request on loading pets after adding pet',
               message: err.message,
-              position: 'middle',
-              color: 'danger',
-              duration: 10000,
+              buttons: ['OK'],
             })
-            .then((toast) => toast.present());
+            .then((alert) => alert.present());
           console.error('Error emitted');
           return of([]);
         }),

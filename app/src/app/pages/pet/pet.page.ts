@@ -83,7 +83,7 @@ export class PetPage {
         },
       ],
     });
-    alert.present();
+    await alert.present();
   }
 
   async setFood(dataForUpdate: PetFood | undefined = undefined) {
@@ -144,7 +144,7 @@ export class PetPage {
         },
       ],
     });
-    alert.present();
+    await alert.present();
   }
 
   cancel() {

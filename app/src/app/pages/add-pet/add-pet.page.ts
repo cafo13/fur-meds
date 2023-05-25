@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { Component } from '@angular/core';
+import { AlertController, IonicModule, ModalController } from '@ionic/angular';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -25,7 +25,7 @@ export class AddPetPage {
     private photoService: PhotoService,
     private auth: AuthService,
     private fileStorage: FileStorageService,
-    private toastCtrl: ToastController
+    private alertCtrl: AlertController
   ) {
     this.pet = {
       uuid: uuidv4(),
@@ -41,38 +41,38 @@ export class AddPetPage {
 
   save() {
     if (!this.pet.name) {
-      this.toastCtrl
+      this.alertCtrl
         .create({
+          header: 'Error',
+          subHeader: 'Not all required fields are filled',
           message: 'Please fill in a name',
-          position: 'middle',
-          color: 'danger',
-          duration: 5000,
+          buttons: ['OK'],
         })
-        .then((toast) => toast.present());
+        .then((alert) => alert.present());
       return;
     }
 
     if (!this.pet.species) {
-      this.toastCtrl
+      this.alertCtrl
         .create({
+          header: 'Error',
+          subHeader: 'Not all required fields are filled',
           message: 'Please fill in a species',
-          position: 'middle',
-          color: 'danger',
-          duration: 5000,
+          buttons: ['OK'],
         })
-        .then((toast) => toast.present());
+        .then((alert) => alert.present());
       return;
     }
 
     if (!this.pet.image) {
-      this.toastCtrl
+      this.alertCtrl
         .create({
+          header: 'Error',
+          subHeader: 'Not all required fields are filled',
           message: 'Please upload an image',
-          position: 'middle',
-          color: 'danger',
-          duration: 5000,
+          buttons: ['OK'],
         })
-        .then((toast) => toast.present());
+        .then((alert) => alert.present());
       return;
     }
 

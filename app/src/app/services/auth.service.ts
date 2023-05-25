@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
 
 import * as auth from 'firebase/auth';
 
@@ -14,7 +14,7 @@ export class AuthService {
   constructor(
     private fireAuth: AngularFireAuth,
     private router: Router,
-    private toastCtrl: ToastController // private alertCtrl: AlertController
+    private alertCtrl: AlertController
   ) {
     this.fireAuth.authState.subscribe((user) => {
       if (user) {
@@ -53,13 +53,13 @@ export class AuthService {
         });
       })
       .catch(async (error) => {
-        const toast = await this.toastCtrl.create({
+        const alert = await this.alertCtrl.create({
+          header: 'Error',
+          subHeader: 'Authentication error on signin',
           message: error.message,
-          position: 'top',
-          color: 'danger',
-          duration: 10000,
+          buttons: ['OK'],
         });
-        toast.present();
+        await alert.present();
         console.error(error.message);
       });
   }
@@ -82,13 +82,13 @@ export class AuthService {
         localStorage.setItem('user', JSON.stringify(result.user));
       })
       .catch(async (error) => {
-        const toast = await this.toastCtrl.create({
+        const alert = await this.alertCtrl.create({
+          header: 'Error',
+          subHeader: 'Authentication error on signup',
           message: error.message,
-          position: 'top',
-          color: 'danger',
-          duration: 10000,
+          buttons: ['OK'],
         });
-        toast.present();
+        await alert.present();
         console.error(error.message);
       });
   }
@@ -97,13 +97,12 @@ export class AuthService {
     return this.fireAuth.currentUser
       .then((u: any) => u.sendEmailVerification())
       .then(async () => {
-        const toast = await this.toastCtrl.create({
+        const alert = await this.alertCtrl.create({
+          header: 'Registration succesful',
           message: 'Email verification mail sent, check your inbox.',
-          position: 'top',
-          color: 'success',
-          duration: 10000,
+          buttons: ['OK'],
         });
-        toast.present();
+        await alert.present();
       });
   }
 
@@ -111,26 +110,22 @@ export class AuthService {
     return this.fireAuth
       .sendPasswordResetEmail(passwordResetEmail)
       .then(async () => {
-        // const alert = await this.alertCtrl.create({
-        //   message: 'Password reset email sent, please type in the code to .',
-        // });
-        // alert.present();
-        const toast = await this.toastCtrl.create({
+        const alert = await this.alertCtrl.create({
+          header: 'Password reset',
+          subHeader: 'Request for resetting password was succesful',
           message: 'Password reset email sent, check your inbox.',
-          position: 'top',
-          color: 'success',
-          duration: 10000,
+          buttons: ['OK'],
         });
-        toast.present();
+        await alert.present();
       })
       .catch(async (error) => {
-        const toast = await this.toastCtrl.create({
+        const alert = await this.alertCtrl.create({
+          header: 'Error',
+          subHeader: 'Authentication error at resetting password',
           message: error.message,
-          position: 'top',
-          color: 'danger',
-          duration: 10000,
+          buttons: ['OK'],
         });
-        toast.present();
+        await alert.present();
         console.error(error.message);
       });
   }
@@ -144,13 +139,13 @@ export class AuthService {
         localStorage.setItem('user', JSON.stringify(result.user));
       })
       .catch(async (error) => {
-        const toast = await this.toastCtrl.create({
+        const alert = await this.alertCtrl.create({
+          header: 'Error',
+          subHeader: 'Authentication error at Google sign in',
           message: error.message,
-          position: 'top',
-          color: 'danger',
-          duration: 10000,
+          buttons: ['OK'],
         });
-        toast.present();
+        await alert.present();
         console.error(error.message);
       });
   }
