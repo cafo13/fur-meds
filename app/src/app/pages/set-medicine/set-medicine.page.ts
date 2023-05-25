@@ -58,6 +58,9 @@ export class SetMedicinePage implements OnInit {
     console.log('opening set frequency popup with mode ' + mode);
 
     const alert = await this.alertCtrl.create({
+      header: `${mode} frequency`,
+      message:
+        'Set the time and the frequency of days (for example, 07:30 am, every 2 days).',
       inputs: [
         {
           name: 'time',

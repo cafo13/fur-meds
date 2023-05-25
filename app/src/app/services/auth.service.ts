@@ -42,15 +42,14 @@ export class AuthService {
     return undefined;
   }
 
-  async SignIn(email: string, password: string) {
-    return this.fireAuth
+  async SignIn(email: string, password: string): Promise<boolean> {
+    return await this.fireAuth
       .signInWithEmailAndPassword(email, password)
-      .then((_user) => {
-        this.fireAuth.authState.subscribe((user) => {
-          if (user) {
-            this.router.navigate(['']);
-          }
-        });
+      .then(async (user) => {
+        if (user && user.user) {
+          return true;
+        }
+        return false;
       })
       .catch(async (error) => {
         const alert = await this.alertCtrl.create({
@@ -61,6 +60,7 @@ export class AuthService {
         });
         await alert.present();
         console.error(error.message);
+        return false;
       });
   }
 

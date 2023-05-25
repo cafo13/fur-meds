@@ -7,13 +7,39 @@
 <ion-content [fullscreen]="true">
   <ion-list>
     <ion-item lines="full">
-      <ion-icon slot="start" name="moon"></ion-icon>
-      <ion-label> Toggle Dark Theme </ion-label>
+      <ion-icon slot="start" name="moon-sharp"></ion-icon>
+      <ion-label>Toggle Dark Theme</ion-label>
       <ion-toggle
         [checked]="usingSystemDarkTheme"
         (ionChange)="toggleDarkTheme($event)"
         slot="end"
       ></ion-toggle>
+    </ion-item>
+    <ion-item lines="full">
+      <ion-icon slot="start" name="flag-sharp"></ion-icon>
+      <ion-select
+        aria-label="Language"
+        interface="popover"
+        (ionChange)="handleLanguageChange($event)"
+      >
+        <ion-select-option
+          *ngFor="let language of languagesList; index as i"
+          value="{{ language.code }}"
+          >{{ language.name }}</ion-select-option
+        >
+      </ion-select>
+      <ion-thumbnail slot="end">
+        <img src="{{ this.pet.image }}" />
+      </ion-thumbnail>
+    </ion-item>
+    <ion-item>
+      <p>{{ 'title' | transloco }}</p>
+    </ion-item>
+    <ion-item>
+      <p>{{ 'form.title' | transloco }}</p>
+    </ion-item>
+    <ion-item>
+      <p>{{ this.transloco.translate('programatically') }}</p>
     </ion-item>
   </ion-list>
 </ion-content>

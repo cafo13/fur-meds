@@ -1,6 +1,6 @@
 {
   "name": "fur-meds",
-  "version": "placeholder",
+  "version": "development",
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
   "scripts": {
@@ -30,6 +30,7 @@
     "@capacitor/status-bar": "5.0.1",
     "@ionic/angular": "^7.0.0",
     "@ionic/storage-angular": "^3.0.6",
+    "@ngneat/transloco": "^4.2.2",
     "firebase": "^9.22.0",
     "ionicons": "^7.0.0",
     "rxjs": "~7.5.0",

@@ -11,6 +11,8 @@ import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 
+import { TranslocoRootModule } from './app/transloco-root.module';
+
 if (environment.production) {
   enableProdMode();
 }
@@ -31,5 +33,6 @@ bootstrapApplication(AppComponent, {
     ),
     importProvidersFrom(AngularFireAuthModule),
     importProvidersFrom(AngularFireStorageModule),
+    importProvidersFrom(TranslocoRootModule),
   ],
 });

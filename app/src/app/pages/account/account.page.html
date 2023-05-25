@@ -37,5 +37,9 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-text *ngIf="auth.isLoggedIn">Logged in!</ion-text>
+  <ion-list *ngIf="auth.isLoggedIn">
+    <ion-item>
+      <ion-text>Logged in!</ion-text>
+    </ion-item>
+  </ion-list>
 </ion-content>
