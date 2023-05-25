@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-settings',
@@ -21,5 +22,9 @@ export class SettingsPage {
     // document.body.classList.toggle('dark', event.detail.checked);
     // this.usingSystemDarkTheme = event.detail.checked
     console.log('to be implented: toggle dark theme here');
+  }
+
+  getAppVersion() {
+    return environment.version;
   }
 }
