@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { ForgotPasswordPage } from '../forgot-password/forgot-password.page';
 import { AuthService } from 'src/app/services/auth.service';
+import { TranslocoModule } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, TranslocoModule],
 })
 export class LoginPage {
   constructor(

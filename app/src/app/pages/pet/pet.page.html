@@ -1,11 +1,15 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="cancel()">Cancel</ion-button>
+      <ion-button (click)="cancel()"
+        >{{ 'global.cancel_button' | transloco }}</ion-button
+      >
     </ion-buttons>
     <ion-title>{{ this.pet?.name }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="save()" [strong]="true">Save</ion-button>
+      <ion-button (click)="save()" [strong]="true"
+        >{{ 'global.save_button' | transloco }}</ion-button
+      >
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -14,7 +18,9 @@
   <ion-card>
     <ion-card-header>
       <ion-card-title
-        >Medicines <ion-icon name="flask-sharp"></ion-icon
+        >{{ 'pages.pet.medicines_title' | transloco }}<ion-icon
+          name="flask-sharp"
+        ></ion-icon
       ></ion-card-title>
     </ion-card-header>
     <ion-card-content>
@@ -44,7 +50,8 @@
   <ion-card>
     <ion-card-header>
       <ion-card-title
-        >Foods <ion-icon name="restaurant-sharp"></ion-icon
+        >{{ 'pages.pet.foods_title' | transloco }}
+        <ion-icon name="restaurant-sharp"></ion-icon
       ></ion-card-title>
     </ion-card-header>
     <ion-card-content>

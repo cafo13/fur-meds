@@ -1,11 +1,18 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="cancel()">Cancel</ion-button>
+      <ion-button (click)="cancel()"
+        >{{ 'global.cancel_button' | transloco }}</ion-button
+      >
     </ion-buttons>
-    <ion-title>Set food</ion-title>
+    <ion-title
+      >{{ mode === "Update" ? ('pages.set_food.update_title' | transloco) :
+      ('pages.set_food.add_title' | transloco) }}</ion-title
+    >
     <ion-buttons slot="end">
-      <ion-button (click)="save()" [strong]="true">Save</ion-button>
+      <ion-button (click)="save()" [strong]="true"
+        >{{ 'global.save_button' | transloco }}</ion-button
+      >
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -14,10 +21,11 @@
   <ion-list>
     <ion-item>
       <ion-input
-        label="Name"
+        label="{{ 'pages.set_food.name_input.label' | transloco }}"
         labelPlacement="floating"
-        placeholder="Enter name of the food"
+        placeholder="{{ 'pages.set_food.name_input.placeholder' | transloco }}"
         (ionChange)="handleNameChange($event)"
+        value="{{ this.food.name }}"
       ></ion-input>
     </ion-item>
   </ion-list>

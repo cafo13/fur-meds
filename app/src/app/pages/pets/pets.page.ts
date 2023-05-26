@@ -3,19 +3,21 @@ import { Component, OnInit } from '@angular/core';
 import { AlertController, IonicModule, ModalController } from '@ionic/angular';
 
 import { PetPage } from '../pet/pet.page';
-import { Pet } from '../../types/types';
+import { Pet, AnimalSpecies } from '../../types/types';
 import { AddPetPage } from '../add-pet/add-pet.page';
 
 import { ApiService } from 'src/app/services/api.service';
 import { Observable, catchError, finalize, of, tap } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pets',
   templateUrl: 'pets.page.html',
   styleUrls: ['pets.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, TranslocoModule],
 })
 export class PetsPage implements OnInit {
   myPets$: Observable<Pet[]> | undefined;
@@ -24,6 +26,8 @@ export class PetsPage implements OnInit {
     private modalCtrl: ModalController,
     private alertCtrl: AlertController,
     private api: ApiService,
+    private transloco: TranslocoService,
+    protected router: Router,
     protected auth: AuthService
   ) {}
 
@@ -37,10 +41,12 @@ export class PetsPage implements OnInit {
       catchError((err) => {
         this.alertCtrl
           .create({
-            header: 'Error',
-            subHeader: 'Failed request on loading pets',
+            header: this.transloco.translate('global.error'),
+            subHeader: this.transloco.translate(
+              'pages.mypets.load_pets.request_failed_alert_subheader'
+            ),
             message: err.message,
-            buttons: ['OK'],
+            buttons: [this.transloco.translate('global.ok')],
           })
           .then((alert) => alert.present());
         console.error('Error emitted');
@@ -66,10 +72,12 @@ export class PetsPage implements OnInit {
         catchError((err) => {
           this.alertCtrl
             .create({
-              header: 'Error',
-              subHeader: 'Failed request on loading pets after updating pet',
+              header: this.transloco.translate('global.error'),
+              subHeader: this.transloco.translate(
+                'pages.mypets.update_pet.request_failed_alert_subheader'
+              ),
               message: err.message,
-              buttons: ['OK'],
+              buttons: [this.transloco.translate('global.ok')],
             })
             .then((alert) => alert.present());
           console.error('Error emitted');
@@ -96,10 +104,12 @@ export class PetsPage implements OnInit {
         catchError((err) => {
           this.alertCtrl
             .create({
-              header: 'Error',
-              subHeader: 'Failed request on loading pets after adding pet',
+              header: this.transloco.translate('global.error'),
+              subHeader: this.transloco.translate(
+                'pages.mypets.add_pet.request_failed_alert_subheader'
+              ),
               message: err.message,
-              buttons: ['OK'],
+              buttons: [this.transloco.translate('global.ok')],
             })
             .then((alert) => alert.present());
           console.error('Error emitted');
@@ -108,5 +118,10 @@ export class PetsPage implements OnInit {
         finalize(() => console.log('Action to be executed always'))
       );
     }
+  }
+
+  getSpeciesText(species: AnimalSpecies): string {
+    const indexOfSpecies = Object.keys(AnimalSpecies).indexOf(species);
+    return Object.values(AnimalSpecies)[indexOfSpecies];
   }
 }

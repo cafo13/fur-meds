@@ -3,8 +3,17 @@
     "cancel_button": "Cancel",
     "save_button": "Save",
     "send_button": "Send",
+    "delete_button": "Delete",
     "or": "or",
-    "email": "Email"
+    "email": "Email",
+    "password": "Password",
+    "signin": "Log in",
+    "signout": "Log out",
+    "register": "Register",
+    "error": "Error",
+    "ok": "OK",
+    "add": "Add",
+    "update": "Update"
   },
   "types": {
     "animal_species": {
@@ -15,20 +24,31 @@
   },
   "pages": {
     "mypets": {
-      "name": "My Pets"
+      "name": "My Pets",
+      "account_button": "Account Page",
+      "login_hint": "Please log in at the account page to view your pets.",
+      "load_pets": {
+        "request_failed_alert_subheader": "Failed request on loading pets"
+      },
+      "update_pet": {
+        "request_failed_alert_subheader": "Failed request on loading pets after updating pet"
+      },
+      "add_pet": {
+        "request_failed_alert_subheader": "Failed request on loading pets after adding pet"
+      }
     },
-    "tracker": {
-      "name": "Tracker"
+    "todo": {
+      "name": "ToDos"
     },
     "account": {
       "name": "Account",
       "already_user": "Already a user?",
-      "register": "Register",
-      "signin": "Sign in",
-      "signout": "Sign out"
+      "register": "Register"
     },
     "settings": {
-      "name": "Settings"
+      "name": "Settings",
+      "use_dark_theme": "Use dark theme",
+      "version": "Version"
     },
     "add_pet": {
       "name": "Add Pet",
@@ -43,6 +63,68 @@
     "forgot_password": {
       "name": "Reset password",
       "hint_text": "Please provide the email address that you used when you signed up for your FurMeds account."
+    },
+    "login": {
+      "name": "Login",
+      "forgot_password": "Forgot password?"
+    },
+    "pet": {
+      "delete_medicine_confirm_text": "Are you sure you want to delete the medicine {{ medicine }}?",
+      "delete_food_confirm_text": "Are you sure you want to delete the food {{ food }}?",
+      "medicines_title": "Medicines",
+      "foods_title": "Foods"
+    },
+    "registration": {
+      "name": "Registration"
+    },
+    "set_food": {
+      "add_title": "Add food",
+      "update_title": "Update food",
+      "name_input": {
+        "label": "Name",
+        "placeholder": "Name of the food"
+      }
+    },
+    "set_medicine": {
+      "add_title": "Add medicine",
+      "update_title": "Update medicine",
+      "name_input": {
+        "label": "Name",
+        "placeholder": "Name of the medicine"
+      },
+      "dosage_input": {
+        "label": "Dosage",
+        "placeholder": "For example '10ml' or 'half a tablet'"
+      },
+      "frequencies": {
+        "title": "Frequencies",
+        "every_days_text_one": "every day at {{ time }}",
+        "every_days_text": "every {{ everyDays }} days at {{ time }}",
+        "add_title": "Add frequency",
+        "update_title": "Update frequency",
+        "explanation": "Set the time and the frequency of days (for example, 07:30 am, every 2 days).",
+        "delete_frequency_confirm_text_one": "Are you sure you want to delete the frequency at {{ time }} every day?",
+        "delete_frequency_confirm_text": "Are you sure you want to delete the frequency at {{ time }} every {{ everyDays }} days?"
+      }
+    }
+  },
+  "services": {
+    "photo": {
+      "select_from_gallery": "Select from gallery",
+      "take_picture": "Take a picture",
+      "no_permissions_title": "No permissions",
+      "no_permissions_hint": "You need to grant permissions for photo album and camera, may check device settings, if you denied them permantly by mistake."
+    },
+    "auth": {
+      "signin_error": "Authentication error on logging in",
+      "signup_error": "Authentication error on registration",
+      "registration_successful_header": "Registration succesful",
+      "registration_successful_message": "Email verification mail sent, check your inbox.",
+      "password_reset_header": "Password reset",
+      "password_reset_subheader": "Request for resetting password was succesful",
+      "password_reset_message": "Password reset email sent, check your inbox.",
+      "password_reset_error": "Authentication error at resetting password",
+      "signin_with_google_error": "Authentication error at Google sign in"
     }
   }
 }

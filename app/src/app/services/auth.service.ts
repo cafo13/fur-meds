@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
+import { TranslocoService } from '@ngneat/transloco';
 
 import * as auth from 'firebase/auth';
 
@@ -14,7 +15,8 @@ export class AuthService {
   constructor(
     private fireAuth: AngularFireAuth,
     private router: Router,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private transloco: TranslocoService
   ) {
     this.fireAuth.authState.subscribe((user) => {
       if (user) {
@@ -53,10 +55,10 @@ export class AuthService {
       })
       .catch(async (error) => {
         const alert = await this.alertCtrl.create({
-          header: 'Error',
-          subHeader: 'Authentication error on signin',
+          header: this.transloco.translate('global.error'),
+          subHeader: this.transloco.translate('services.auth.signin_error'),
           message: error.message,
-          buttons: ['OK'],
+          buttons: [this.transloco.translate('global.ok')],
         });
         await alert.present();
         console.error(error.message);
@@ -83,10 +85,10 @@ export class AuthService {
       })
       .catch(async (error) => {
         const alert = await this.alertCtrl.create({
-          header: 'Error',
-          subHeader: 'Authentication error on signup',
+          header: this.transloco.translate('global.error'),
+          subHeader: this.transloco.translate('services.auth.signup_error'),
           message: error.message,
-          buttons: ['OK'],
+          buttons: [this.transloco.translate('global.ok')],
         });
         await alert.present();
         console.error(error.message);
@@ -98,9 +100,13 @@ export class AuthService {
       .then((u: any) => u.sendEmailVerification())
       .then(async () => {
         const alert = await this.alertCtrl.create({
-          header: 'Registration succesful',
-          message: 'Email verification mail sent, check your inbox.',
-          buttons: ['OK'],
+          header: this.transloco.translate(
+            'services.auth.registration_successful_header'
+          ),
+          message: this.transloco.translate(
+            'services.auth.registration_successful_message'
+          ),
+          buttons: [this.transloco.translate('global.ok')],
         });
         await alert.present();
       });
@@ -111,19 +117,27 @@ export class AuthService {
       .sendPasswordResetEmail(passwordResetEmail)
       .then(async () => {
         const alert = await this.alertCtrl.create({
-          header: 'Password reset',
-          subHeader: 'Request for resetting password was succesful',
-          message: 'Password reset email sent, check your inbox.',
-          buttons: ['OK'],
+          header: this.transloco.translate(
+            'services.auth.password_reset_header'
+          ),
+          subHeader: this.transloco.translate(
+            'services.auth.password_reset_subheader'
+          ),
+          message: this.transloco.translate(
+            'services.auth.password_reset_message'
+          ),
+          buttons: [this.transloco.translate('global.ok')],
         });
         await alert.present();
       })
       .catch(async (error) => {
         const alert = await this.alertCtrl.create({
-          header: 'Error',
-          subHeader: 'Authentication error at resetting password',
+          header: this.transloco.translate('global.error'),
+          subHeader: this.transloco.translate(
+            'services.auth.password_reset_error'
+          ),
           message: error.message,
-          buttons: ['OK'],
+          buttons: [this.transloco.translate('global.ok')],
         });
         await alert.present();
         console.error(error.message);
@@ -140,10 +154,12 @@ export class AuthService {
       })
       .catch(async (error) => {
         const alert = await this.alertCtrl.create({
-          header: 'Error',
-          subHeader: 'Authentication error at Google sign in',
+          header: this.transloco.translate('global.error'),
+          subHeader: this.transloco.translate(
+            'services.auth.signin_with_google_error'
+          ),
           message: error.message,
-          buttons: ['OK'],
+          buttons: [this.transloco.translate('global.ok')],
         });
         await alert.present();
         console.error(error.message);

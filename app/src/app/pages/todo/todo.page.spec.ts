@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { TrackerPage } from './tracker.page';
+import { TodoPage } from './todo.page';
 
-describe('TrackerPage', () => {
-  let component: TrackerPage;
-  let fixture: ComponentFixture<TrackerPage>;
+describe('TodoPage', () => {
+  let component: TodoPage;
+  let fixture: ComponentFixture<TodoPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TrackerPage, IonicModule],
+      imports: [TodoPage, IonicModule],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TrackerPage);
+    fixture = TestBed.createComponent(TodoPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

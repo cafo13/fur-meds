@@ -12,9 +12,9 @@ export const routes: Routes = [
           import('../pets/pets.page').then((m) => m.PetsPage),
       },
       {
-        path: 'tracker',
+        path: 'todo',
         loadComponent: () =>
-          import('../tracker/tracker.page').then((m) => m.TrackerPage),
+          import('../todo/todo.page').then((m) => m.TodoPage),
       },
       {
         path: 'account',

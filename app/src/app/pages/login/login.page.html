@@ -6,7 +6,7 @@
         defaultHref="/tabs/account"
       ></ion-back-button>
     </ion-buttons>
-    <ion-title>Log In</ion-title>
+    <ion-title>{{ 'pages.login.name' | transloco }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -14,7 +14,7 @@
   <form>
     <ion-item lines="full">
       <ion-input
-        label="Email"
+        label="{{ 'global.email' | transloco }}"
         labelPlacement="floating"
         type="text"
         #userMail
@@ -23,7 +23,7 @@
     </ion-item>
     <ion-item lines="full">
       <ion-input
-        label="Password"
+        label="{{ 'global.password' | transloco }}"
         labelPlacement="floating"
         type="password"
         #userPassword
@@ -37,11 +37,12 @@
           type="submit"
           color="danger"
           expand="block"
-          >Sign In</ion-button
         >
-        <a (click)="openForgotPasswordModal()" class="small-text"
-          >Forgot Password?</a
-        >
+          {{ 'global.signin' | transloco }}
+        </ion-button>
+        <a (click)="openForgotPasswordModal()" class="small-text">
+          {{ 'pages.login.forgot_password' | transloco }}
+        </a>
       </ion-col>
     </ion-row>
   </form>

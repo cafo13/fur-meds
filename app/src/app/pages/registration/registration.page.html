@@ -6,7 +6,7 @@
         defaultHref="/tabs/account"
       ></ion-back-button>
     </ion-buttons>
-    <ion-title>Register</ion-title>
+    <ion-title>{{ 'pages.registration.name' | transloco }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -14,7 +14,7 @@
   <form>
     <ion-item lines="full">
       <ion-input
-        label="Email"
+        label="{{ 'global.email' | transloco }}"
         labelPlacement="floating"
         type="text"
         #userMail
@@ -23,7 +23,7 @@
     </ion-item>
     <ion-item lines="full">
       <ion-input
-        label="Password"
+        label="{{ 'global.password' | transloco }}"
         labelPlacement="floating"
         type="password"
         #userPassword
@@ -37,7 +37,7 @@
           type="submit"
           color="danger"
           expand="block"
-          >Sign Up</ion-button
+          >{{ 'global.register' | transloco }}</ion-button
         >
       </ion-col>
     </ion-row>

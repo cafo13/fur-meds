@@ -3,8 +3,17 @@
     "cancel_button": "Abbrechen",
     "save_button": "Speichern",
     "send_button": "Senden",
+    "delete_button": "Löschen",
     "or": "oder",
-    "email": "E-Mail"
+    "email": "E-Mail",
+    "password": "Passwort",
+    "signin": "Anmelden",
+    "signout": "Abmelden",
+    "register": "Registrieren",
+    "error": "Fehler",
+    "ok": "OK",
+    "add": "Hinzufügen",
+    "update": "Aktualisieren"
   },
   "types": {
     "animal_species": {
@@ -15,20 +24,31 @@
   },
   "pages": {
     "mypets": {
-      "name": "Meine Haustiere"
+      "name": "Meine Haustiere",
+      "account_button": "Account Seite",
+      "login_hint": "Bitte loggen Sie sich auf der Account Seite ein, um Ihre Haustiere zu sehen.",
+      "load_pets": {
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere"
+      },
+      "update_pet": {
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere nach Update eines Haustieres"
+      },
+      "add_pet": {
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere nach hinzufügen eines Haustieres"
+      }
     },
-    "tracker": {
-      "name": "Tracker"
+    "todo": {
+      "name": "ToDos"
     },
     "account": {
       "name": "Account",
       "already_user": "Haben Sie bereits einen Account?",
-      "register": "Registrieren",
-      "signin": "Anmelden",
-      "signout": "Abmelden"
+      "register": "Registrieren"
     },
     "settings": {
-      "name": "Einstellungen"
+      "name": "Einstellungen",
+      "use_dark_theme": "Dark theme verwenden",
+      "version": "Version"
     },
     "add_pet": {
       "name": "Neues Haustier",
@@ -43,6 +63,68 @@
     "forgot_password": {
       "name": "Passwort zurücksetzen",
       "hint_text": "Bitte geben Sie die E-Mail-Adresse an, die Sie bei der Anmeldung für Ihr FurMeds-Konto verwendet haben."
+    },
+    "login": {
+      "name": "Anmelden",
+      "forgot_password": "Passwort vergessen?"
+    },
+    "pet": {
+      "delete_medicine_confirm_text": "Sind Sie sicher, dass Sie das Medikament {{ medicine }} löschen wollen?",
+      "delete_food_confirm_text": "Sind Sie sicher, dass Sie das Futter {{ food }} löschen wollen?",
+      "medicines_title": "Medikamente",
+      "foods_title": "Futter"
+    },
+    "registration": {
+      "name": "Registrierung"
+    },
+    "set_food": {
+      "add_title": "Futter hinzufügen",
+      "update_title": "Futter aktualisieren",
+      "name_input": {
+        "label": "Name",
+        "placeholder": "Name des Futters"
+      }
+    },
+    "set_medicine": {
+      "add_title": "Medikament hinzufügen",
+      "update_title": "Medikament aktualisieren",
+      "name_input": {
+        "label": "Name",
+        "placeholder": "Name des Medikaments"
+      },
+      "dosage_input": {
+        "label": "Dosierung",
+        "placeholder": "Zum Beispiel '10ml' oder 'halbe Tablette'"
+      },
+      "frequencies": {
+        "title": "Häufigkeit",
+        "every_days_text_one": "jeden Tag um {{ time }}",
+        "every_days_text": "jeden {{ everyDays }}. Tag um {{ time }}",
+        "add_title": "Häufigkeit hinzufügen",
+        "update_title": "Häufigkeit aktualisieren",
+        "explanation": "Stellen Sie die Uhrzeit und die Häufigkeit der Tage ein (z.B. 07:30 Uhr, alle 2 Tage).",
+        "delete_frequency_confirm_text_one": "Sind Sie sicher, dass Sie die Häufigkeit jeden Tag um {{ time }} löschen möchten?",
+        "delete_frequency_confirm_text": "Sind Sie sicher, dass Sie die Häufigkeit um {{ time }} alle {{ everyDays }} Tage löschen wollen?"
+      }
+    }
+  },
+  "services": {
+    "photo": {
+      "select_from_gallery": "Aus der Galerie wählen",
+      "take_picture": "Ein Foto machen",
+      "no_permissions_title": "Keine Berechtigungen",
+      "no_permissions_hint": "Sie müssen die Berechtigungen für das Fotoalbum und die Kamera erteilen. Prüfen Sie die Geräteeinstellungen, wenn Sie diese Berechtigungen versehentlich verweigert haben."
+    },
+    "auth": {
+      "signin_error": "Authentifizierungsfehler beim Anmelden",
+      "signup_error": "Authentifizierungsfehler bei der Registrierung",
+      "registration_successful_header": "Registrierung erfolgreich",
+      "registration_successful_message": "E-Mail-Bestätigungsmail gesendet, überprüfen Sie Ihren Posteingang.",
+      "password_reset_header": "Passwort zurücksetzen",
+      "password_reset_subheader": "Anfrage zum zurücksetzen des Passworts war erfolgreich",
+      "password_reset_message": "E-Mail zum Zurücksetzen des Passworts gesendet, überprüfen Sie Ihren Posteingang.",
+      "password_reset_error": "Authentifizierungsfehler beim Zurücksetzen des Passworts",
+      "signin_with_google_error": "Authentifizierungsfehler bei der Google-Anmeldung"
     }
   }
 }

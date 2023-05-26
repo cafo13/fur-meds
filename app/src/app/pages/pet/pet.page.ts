@@ -5,13 +5,14 @@ import { AlertController, IonicModule, ModalController } from '@ionic/angular';
 import { Pet, PetFood, PetMedicine } from '../../types/types';
 import { SetMedicinePage } from '../set-medicine/set-medicine.page';
 import { SetFoodPage } from '../set-food/set-food.page';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-pet',
   templateUrl: 'pet.page.html',
   styleUrls: ['pet.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, TranslocoModule],
 })
 export class PetPage {
   @Input() input: Pet | undefined = undefined;
@@ -19,7 +20,8 @@ export class PetPage {
 
   constructor(
     private modalCtrl: ModalController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private transloco: TranslocoService
   ) {
     this.pet = this.input;
   }
@@ -56,18 +58,20 @@ export class PetPage {
     console.log('deleting medicine ' + medicine.uuid);
 
     const alert = await this.alertCtrl.create({
-      message:
-        "Are you sure you want to delete the medicine '" + medicine.name + "'?",
+      message: this.transloco.translate(
+        'pages.pet.delete_medicine_confirm_text',
+        { medicine: medicine.name }
+      ),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.transloco.translate('global.cancel_button'),
           role: 'cancel',
           handler: () => {
             console.log('Cancelled deleting medicine ' + medicine.uuid);
           },
         },
         {
-          text: 'Delete',
+          text: this.transloco.translate('global.delete_button'),
           role: 'confirm',
           handler: () => {
             console.log('Successfully deleted medicine ' + medicine.uuid);
@@ -118,17 +122,19 @@ export class PetPage {
     console.log('deleting food ' + food.uuid);
 
     const alert = await this.alertCtrl.create({
-      message: "Are you sure you want to delete the food '" + food.name + "'?",
+      message: this.transloco.translate('pages.pet.delete_food_confirm_text', {
+        food: food.name,
+      }),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.transloco.translate('global.cancel_button'),
           role: 'cancel',
           handler: () => {
             console.log('Cancelled deleting food ' + food.uuid);
           },
         },
         {
-          text: 'Delete',
+          text: this.transloco.translate('global.delete_button'),
           role: 'confirm',
           handler: () => {
             console.log('Successfully deleted food ' + food.uuid);

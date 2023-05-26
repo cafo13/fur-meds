@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { AlertController, IonicModule, ModalController } from '@ionic/angular';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,7 +12,7 @@ import { PetMedicine, PetMedicineFrequency } from '../../types/types';
   templateUrl: 'set-medicine.page.html',
   styleUrls: ['set-medicine.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, TranslocoModule],
 })
 export class SetMedicinePage implements OnInit {
   medicine: PetMedicine = {
@@ -25,7 +26,8 @@ export class SetMedicinePage implements OnInit {
 
   constructor(
     private modalCtrl: ModalController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    protected transloco: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -58,9 +60,17 @@ export class SetMedicinePage implements OnInit {
     console.log('opening set frequency popup with mode ' + mode);
 
     const alert = await this.alertCtrl.create({
-      header: `${mode} frequency`,
-      message:
-        'Set the time and the frequency of days (for example, 07:30 am, every 2 days).',
+      header:
+        mode === 'Update'
+          ? this.transloco.translate(
+              'pages.set_medicine.frequencies.update_title'
+            )
+          : this.transloco.translate(
+              'pages.set_medicine.frequencies.add_title'
+            ),
+      message: this.transloco.translate(
+        'pages.set_medicine.frequencies.explanation'
+      ),
       inputs: [
         {
           name: 'time',
@@ -76,14 +86,14 @@ export class SetMedicinePage implements OnInit {
       ],
       buttons: [
         {
-          text: 'Cancel',
+          text: this.transloco.translate('global.cancel_button'),
           role: 'cancel',
           handler: () => {
             console.log('Cancelled setting frequency (mode: ' + mode + ')');
           },
         },
         {
-          text: 'Save',
+          text: this.transloco.translate('global.save_button'),
           role: 'confirm',
           handler: (values: any) => {
             const frequency: PetMedicineFrequency = {
@@ -115,25 +125,29 @@ export class SetMedicinePage implements OnInit {
 
     const alert = await this.alertCtrl.create({
       message:
-        "Are you sure you want to delete the frequency '" +
-        frequency.time +
-        "' every " +
-        frequency.everyDays +
-        'days?',
+        frequency.everyDays === 1
+          ? this.transloco.translate(
+              'pages.set_medicine.frequencies.delete_frequency_confirm_text_one',
+              { time: frequency.time }
+            )
+          : this.transloco.translate(
+              'pages.set_medicine.frequencies.delete_frequency_confirm_text',
+              { time: frequency.time, everyDays: frequency.everyDays }
+            ),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.transloco.translate('global.cancel_button'),
           role: 'cancel',
           handler: () => {
             console.log('Cancelled deleting frequency ' + frequency.uuid);
           },
         },
         {
-          text: 'Delete',
+          text: this.transloco.translate('global.delete_button'),
           role: 'confirm',
           handler: () => {
             this.medicine.frequencies.forEach((existingFrequency, index) => {
-              if (frequency.uuid === frequency.uuid) {
+              if (existingFrequency.uuid === frequency.uuid) {
                 this.medicine.frequencies.splice(index, 1);
               }
             });

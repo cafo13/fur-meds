@@ -1,6 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title> Settings </ion-title>
+    <ion-title>{{ 'pages.settings.name' | transloco }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -8,7 +8,7 @@
   <ion-list>
     <ion-item lines="full">
       <ion-icon slot="start" name="moon-sharp"></ion-icon>
-      <ion-label>Toggle Dark Theme</ion-label>
+      <ion-label>{{ 'pages.settings.use_dark_theme' | transloco }}</ion-label>
       <ion-toggle
         [checked]="usingSystemDarkTheme"
         (ionChange)="toggleDarkTheme($event)"
@@ -18,7 +18,6 @@
     <ion-item lines="full">
       <ion-icon slot="start" name="flag-sharp"></ion-icon>
       <ion-select
-        aria-label="Language"
         interface="popover"
         (ionChange)="handleLanguageChange($event)"
         value="{{ this.selectedLanguageCode }}"
@@ -36,7 +35,8 @@
 <ion-footer>
   <ion-toolbar>
     <ion-title style="text-align: center"
-      >Version: {{ this.getAppVersion() }}</ion-title
+      >{{ 'pages.settings.version' | transloco }}: {{ this.getAppVersion()
+      }}</ion-title
     >
   </ion-toolbar>
 </ion-footer>
