@@ -1,7 +1,20 @@
 {
-  "title": "Hello World!",
-  "form": {
-    "title": "Nested Hello World!"
-  },
-  "programatically": "Programatically Hallo Welt!"
+  "pages": {
+    "mypets": {
+      "name": "My Pets"
+    },
+    "tracker": {
+      "name": "Tracker"
+    },
+    "account": {
+      "name": "Account",
+      "already_user": "Already a user?",
+      "register": "Register",
+      "signin": "Sign in",
+      "signout": "Sign out"
+    },
+    "settings": {
+      "name": "Settings"
+    }
+  }
 }

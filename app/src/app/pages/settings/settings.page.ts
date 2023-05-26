@@ -5,7 +5,7 @@ import { TranslocoRootModule } from 'src/app/transloco-root.module';
 import { environment } from 'src/environments/environment';
 import { TranslocoService } from '@ngneat/transloco';
 
-type Language = Record<'imgUrl' | 'code' | 'name' | 'shorthand', string>;
+type Language = Record<'code' | 'name' | 'shorthand', string>;
 @Component({
   selector: 'app-settings',
   templateUrl: 'settings.page.html',
@@ -15,31 +15,25 @@ type Language = Record<'imgUrl' | 'code' | 'name' | 'shorthand', string>;
 })
 export class SettingsPage {
   usingSystemDarkTheme: boolean;
-  selectedLanguage: Language;
+  selectedLanguageCode: string;
   languagesList: Array<Language> = [
     {
-      imgUrl: '/assets/images/English.png',
       code: 'en',
       name: 'English',
       shorthand: 'ENG',
     },
     {
-      imgUrl: '/assets/images/Deutsch.png',
       code: 'de',
       name: 'German',
       shorthand: 'GER',
     },
   ];
+
   constructor(protected transloco: TranslocoService) {
     this.usingSystemDarkTheme = window.matchMedia(
       '(prefers-color-scheme: dark)'
     ).matches;
-    this.selectedLanguage = {
-      imgUrl: '/assets/images/Deutsch.png',
-      code: 'de',
-      name: 'German',
-      shorthand: 'GER',
-    };
+    this.selectedLanguageCode = this.transloco.getActiveLang();
   }
 
   toggleDarkTheme(event: any): void {
@@ -49,10 +43,10 @@ export class SettingsPage {
   }
 
   handleLanguageChange(event: any): void {
+    const languageCode = event.detail.value;
     this.transloco.setActiveLang(languageCode);
-    languageCode === 'fa'
-      ? (document.body.style.direction = 'rtl')
-      : (document.body.style.direction = 'ltr');
+    this.selectedLanguageCode = languageCode;
+    localStorage.setItem('language', languageCode);
   }
 
   getAppVersion() {

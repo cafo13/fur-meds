@@ -2,6 +2,7 @@ import { Component, EnvironmentInjector, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-root',
@@ -13,5 +14,10 @@ import { RouterOutlet } from '@angular/router';
 export class AppComponent {
   public environmentInjector = inject(EnvironmentInjector);
 
-  constructor() {}
+  constructor(private transloco: TranslocoService) {
+    const deviceLanguage = localStorage.getItem('language') || 'de';
+    this.transloco.setDefaultLang(deviceLanguage);
+    this.transloco.setActiveLang(deviceLanguage);
+    localStorage.setItem('language', deviceLanguage);
+  }
 }

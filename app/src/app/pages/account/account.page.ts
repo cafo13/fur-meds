@@ -4,13 +4,14 @@ import { AuthService } from 'src/app/services/auth.service';
 import { LoginPage } from '../login/login.page';
 import { RegistrationPage } from '../registration/registration.page';
 import { CommonModule } from '@angular/common';
+import { TranslocoModule } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-account',
   templateUrl: 'account.page.html',
   styleUrls: ['account.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, TranslocoModule],
 })
 export class AccountPage {
   constructor(

@@ -1,6 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title> Account </ion-title>
+    <ion-title>{{ 'pages.account.name' | transloco }}</ion-title>
     <ion-buttons slot="secondary">
       <ion-button (click)="auth.SignOut()" *ngIf="auth.isLoggedIn">
         <ion-icon slot="icon-only" name="log-out-sharp"></ion-icon>
@@ -17,12 +17,14 @@
           (click)="openRegistrationModal()"
           expand="block"
           color="primary"
-          >Register</ion-button
+          >{{ 'pages.account.register' | transloco }}</ion-button
         >
         <span class="divider line one-line">or</span>
-        <span class="already">Already a user?</span>
+        <span class="already"
+          >{{ 'pages.account.already_user' | transloco }}</span
+        >
         <ion-button (click)="openLoginModal()" expand="block" color="danger"
-          >Sign In</ion-button
+          >{{ 'pages.account.signin' | transloco }}</ion-button
         >
         <!--
         <span class="divider line one-line">or</span>
@@ -37,9 +39,14 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-list *ngIf="auth.isLoggedIn">
-    <ion-item>
-      <ion-text>Logged in!</ion-text>
-    </ion-item>
-  </ion-list>
+
+  <ion-grid *ngIf="auth.isLoggedIn">
+    <ion-row>
+      <ion-col align-self-center>
+        <ion-button (click)="auth.SignOut()" expand="block" color="danger"
+          >{{ 'pages.account.signout' | transloco }}</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
