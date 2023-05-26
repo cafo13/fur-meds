@@ -26,8 +26,7 @@ export class AddPetPage {
     private photoService: PhotoService,
     private auth: AuthService,
     private fileStorage: FileStorageService,
-    private alertCtrl: AlertController,
-    protected transloco: TranslocoService
+    private alertCtrl: AlertController
   ) {
     this.pet = {
       uuid: uuidv4(),

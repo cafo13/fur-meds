@@ -1,7 +1,10 @@
 {
   "global": {
     "cancel_button": "Cancel",
-    "save_button": "Save"
+    "save_button": "Save",
+    "send_button": "Send",
+    "or": "or",
+    "email": "Email"
   },
   "types": {
     "animal_species": {
@@ -38,7 +41,8 @@
       "change_picture": "Change picture"
     },
     "forgot_password": {
-      "name": "Reset password"
+      "name": "Reset password",
+      "hint_text": "Please provide the email address that you used when you signed up for your FurMeds account."
     }
   }
 }

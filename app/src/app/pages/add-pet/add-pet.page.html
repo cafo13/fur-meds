@@ -18,31 +18,30 @@
   <ion-list>
     <ion-item>
       <ion-input
-        label="{{ this.transloco.translate('pages.add_pet.name_input.label') }}"
+        label="{{ 'pages.add_pet.name_input.label' | transloco }}"
         labelPlacement="floating"
-        placeholder="{{ this.transloco.translate('pages.add_pet.name_input.placeholder') }}"
+        placeholder="{{ 'pages.add_pet.name_input.placeholder' | transloco }}"
         (ionChange)="handleNameChange($event)"
       ></ion-input>
     </ion-item>
     <ion-item>
       <ion-select
         interface="action-sheet"
-        cancelText="{{ this.transloco.translate('global.cancel_button') }}"
-        placeholder="{{ this.transloco.translate('pages.add_pet.animal_species') }}"
+        cancelText="{{ 'global.cancel_button' | transloco }}"
+        placeholder="{{ 'pages.add_pet.animal_species' | transloco }}"
         (ionChange)="handleSpeciesChange($event)"
       >
         <ion-select-option
           *ngFor="let enum of animalSpecies | keyvalue"
           value="{{ enum.key }}"
-          >{{ this.transloco.translate(enum.value) }}</ion-select-option
+          >{{ enum.value | transloco }}</ion-select-option
         >
       </ion-select>
     </ion-item>
     <ion-item>
       <ion-button fill="outline" (click)="addPicture()"
-        >{{ this.pet.image ?
-        this.transloco.translate("pages.add_pet.change_picture") :
-        this.transloco.translate("pages.add_pet.add_picture") }}</ion-button
+        >{{ this.pet.image ? ("pages.add_pet.change_picture" | transloco) :
+        ("pages.add_pet.add_picture" | transloco) }}</ion-button
       >
       <ion-thumbnail slot="end">
         <img src="{{ this.pet.image }}" />
