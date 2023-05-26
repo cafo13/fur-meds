@@ -1,6 +1,7 @@
-export enum PetSpecies {
-  CAT = 'Cat',
-  DOG = 'Dog',
+export enum AnimalSpecies {
+  CAT = 'types.animal_species.cat',
+  DOG = 'types.animal_species.dog',
+  OTHER = 'types.animal_species.other',
 }
 
 export type PetMedicineFrequency = {
@@ -31,7 +32,7 @@ export type PetFood = {
 export type Pet = {
   uuid: string;
   name: string;
-  species: PetSpecies | undefined;
+  species: AnimalSpecies | undefined;
   image: string;
   medicines?: PetMedicine[];
   foods?: PetFood[];

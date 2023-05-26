@@ -1,4 +1,15 @@
 {
+  "global": {
+    "cancel_button": "Abbrechen",
+    "save_button": "Speichern"
+  },
+  "types": {
+    "animal_species": {
+      "cat": "Katze",
+      "dog": "Hund",
+      "other": "Andere"
+    }
+  },
   "pages": {
     "mypets": {
       "name": "Meine Haustiere"
@@ -15,6 +26,19 @@
     },
     "settings": {
       "name": "Einstellungen"
+    },
+    "add_pet": {
+      "name": "Neues Haustier",
+      "name_input": {
+        "label": "Name",
+        "placeholder": "Name des Haustieres"
+      },
+      "animal_species": "Tierart auswählen",
+      "add_picture": "Bild hinzufügen",
+      "change_picture": "Bild ändern"
+    },
+    "forgot_password": {
+      "name": "Passwort zurücksetzen"
     }
   }
 }

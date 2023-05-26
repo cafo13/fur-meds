@@ -1,4 +1,15 @@
 {
+  "global": {
+    "cancel_button": "Cancel",
+    "save_button": "Save"
+  },
+  "types": {
+    "animal_species": {
+      "cat": "Cat",
+      "dog": "Dog",
+      "other": "Other"
+    }
+  },
   "pages": {
     "mypets": {
       "name": "My Pets"
@@ -15,6 +26,19 @@
     },
     "settings": {
       "name": "Settings"
+    },
+    "add_pet": {
+      "name": "Add Pet",
+      "name_input": {
+        "label": "Name",
+        "placeholder": "Name of the pet"
+      },
+      "animal_species": "Select animal species",
+      "add_picture": "Add picture",
+      "change_picture": "Change picture"
+    },
+    "forgot_password": {
+      "name": "Reset password"
     }
   }
 }

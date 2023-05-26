@@ -4,20 +4,21 @@ import { AlertController, IonicModule, ModalController } from '@ionic/angular';
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { Pet, PetSpecies } from '../../types/types';
+import { Pet, AnimalSpecies } from '../../types/types';
 import { PhotoService } from '../../services/photo.service';
 import { FileStorageService } from 'src/app/services/file-storage.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-add-pet',
   templateUrl: 'add-pet.page.html',
   styleUrls: ['add-pet.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, TranslocoModule],
 })
 export class AddPetPage {
-  petSpecies = PetSpecies;
+  animalSpecies = AnimalSpecies;
   pet: Pet;
 
   constructor(
@@ -25,7 +26,8 @@ export class AddPetPage {
     private photoService: PhotoService,
     private auth: AuthService,
     private fileStorage: FileStorageService,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    protected transloco: TranslocoService
   ) {
     this.pet = {
       uuid: uuidv4(),
