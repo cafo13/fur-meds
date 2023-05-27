@@ -5,13 +5,20 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { ForgotPasswordPage } from '../forgot-password/forgot-password.page';
 import { AuthService } from 'src/app/services/auth.service';
 import { TranslocoModule } from '@ngneat/transloco';
+import { ShowPasswordComponent } from 'src/app/components/show-password/show-password.component';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, TranslocoModule],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    TranslocoModule,
+    ShowPasswordComponent,
+  ],
 })
 export class LoginPage {
   constructor(

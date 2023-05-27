@@ -105,6 +105,7 @@ platform :ios do
     run_precheck_before_submit: false, # not supported through ASC API yet
     submission_information: {
       export_compliance_uses_encryption: false,
+      export_compliance_encryption_updated: false
     }
   )
   end

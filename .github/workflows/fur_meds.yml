@@ -204,3 +204,30 @@ jobs:
           IOS_ASC_PRIVATE_KEY: ${{ secrets.IOS_ASC_PRIVATE_KEY }}
           IOS_SIGNING_KEY_FILE_PATH: signing-cert.p12
         run: fastlane deploy
+
+  # tag repo and create release after deploy is finished
+  tag_and_release:
+    name: Tag repo and create release
+    needs: [
+      generate_semantic_version,
+      build_and_deploy_ios_app,
+      build_and_deploy_android_app,
+      build_and_deploy_pets_api
+    ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.generate_semantic_version.outputs.version }}
+          release_name: Release ${{ needs.generate_semantic_version.outputs.version }}
+          body: ${{ github.event.head_commit.message }}
+          draft: true
+          prerelease: true
