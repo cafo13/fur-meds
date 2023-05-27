@@ -33,8 +33,7 @@ export class PhotoService {
     ) {
       const photo = await Camera.getPhoto({
         resultType: CameraResultType.DataUrl,
-        quality: 50,
-        allowEditing: true,
+        quality: 100,
         height: 200,
         promptLabelCancel: this.transloco.translate('global.cancel_button'),
         promptLabelPhoto: this.transloco.translate(
