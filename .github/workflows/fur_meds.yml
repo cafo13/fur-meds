@@ -222,12 +222,10 @@ jobs:
           fetch-depth: 0
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ needs.generate_semantic_version.outputs.version }}
-          release_name: Release ${{ needs.generate_semantic_version.outputs.version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ needs.generate_semantic_version.outputs.version }}
           body: ${{ github.event.head_commit.message }}
           draft: true
           prerelease: true
