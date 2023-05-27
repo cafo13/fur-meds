@@ -34,7 +34,7 @@
         "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere nach Update eines Haustieres"
       },
       "add_pet": {
-        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere nach hinzufügen eines Haustieres"
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere nach Hinzufügen eines Haustieres"
       }
     },
     "todo": {
@@ -121,7 +121,7 @@
       "registration_successful_header": "Registrierung erfolgreich",
       "registration_successful_message": "E-Mail-Bestätigungsmail gesendet, überprüfen Sie Ihren Posteingang.",
       "password_reset_header": "Passwort zurücksetzen",
-      "password_reset_subheader": "Anfrage zum zurücksetzen des Passworts war erfolgreich",
+      "password_reset_subheader": "Anfrage zum Zurücksetzen des Passworts war erfolgreich",
       "password_reset_message": "E-Mail zum Zurücksetzen des Passworts gesendet, überprüfen Sie Ihren Posteingang.",
       "password_reset_error": "Authentifizierungsfehler beim Zurücksetzen des Passworts",
       "signin_with_google_error": "Authentifizierungsfehler bei der Google-Anmeldung"

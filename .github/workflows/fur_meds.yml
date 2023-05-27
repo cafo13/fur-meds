@@ -225,7 +225,10 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          commit: ${GITHUB_SHA}
+          target_commitish: ${GITHUB_SHA}
           tag: ${{ needs.generate_semantic_version.outputs.version }}
+          tag_name: ${{ needs.generate_semantic_version.outputs.version }}
           body: ${{ github.event.head_commit.message }}
-          draft: true
           prerelease: true
+          skipIfReleaseExists: true
