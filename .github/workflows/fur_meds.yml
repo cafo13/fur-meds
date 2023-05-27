@@ -6,7 +6,6 @@ on:
     paths:
       - app/**
       - backend/**
-      - .github/workflows/**
 
 env:
   REGISTRY: ghcr.io
@@ -34,7 +33,7 @@ jobs:
           minor_pattern: "(MINOR)"
           minor_regexp_flags: ""
           version_format: "${major}.${minor}.${patch}"
-          change_path: "backend/pets-api app"
+          change_path: "backend app"
           bump_each_commit: true
           search_commit_body: true
           user_format_type: "json"
@@ -220,15 +219,16 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Create Tag and Release
+      - name: Create Tag
+        id: create_tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ needs.generate_semantic_version.outputs.version }}
+      - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit: ${GITHUB_SHA}
-          target_commitish: ${GITHUB_SHA}
           tag: ${{ needs.generate_semantic_version.outputs.version }}
-          tag_name: ${{ needs.generate_semantic_version.outputs.version }}
           body: ${{ github.event.head_commit.message }}
           prerelease: true
-          skipIfReleaseExists: true

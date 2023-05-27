@@ -34,7 +34,7 @@
         "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere nach Update eines Haustieres"
       },
       "add_pet": {
-        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere nach Hinzufügen eines Haustieres"
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere nach hinzufügen eines Haustieres"
       }
     },
     "todo": {
