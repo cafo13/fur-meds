@@ -14,7 +14,7 @@ type Language = Record<'code' | 'name' | 'shorthand', string>;
   imports: [IonicModule, CommonModule, TranslocoRootModule],
 })
 export class SettingsPage {
-  usingSystemDarkTheme: boolean;
+  useDarkTheme: boolean;
   selectedLanguageCode: string;
   languagesList: Array<Language> = [
     {
@@ -30,16 +30,25 @@ export class SettingsPage {
   ];
 
   constructor(protected transloco: TranslocoService) {
-    this.usingSystemDarkTheme = window.matchMedia(
+    const appSettingsUseDarkTheme = localStorage.getItem('useDarkTheme');
+    const deviceSettingsUseDarkTheme = window.matchMedia(
       '(prefers-color-scheme: dark)'
     ).matches;
+    if (appSettingsUseDarkTheme !== null) {
+      this.useDarkTheme = JSON.parse(appSettingsUseDarkTheme);
+    } else {
+      this.useDarkTheme = deviceSettingsUseDarkTheme;
+    }
+    document.body.classList.toggle('dark', this.useDarkTheme);
+
     this.selectedLanguageCode = this.transloco.getActiveLang();
   }
 
   toggleDarkTheme(event: any): void {
-    document.body.classList.toggle('dark', event.detail.checked);
-    this.usingSystemDarkTheme = event.detail.checked;
-    console.log('to be implemented: toggle theme here');
+    const useDarkTheme = event.detail.checked;
+    document.body.classList.toggle('dark', useDarkTheme);
+    this.useDarkTheme = useDarkTheme;
+    localStorage.setItem('useDarkTheme', useDarkTheme);
   }
 
   handleLanguageChange(event: any): void {

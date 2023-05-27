@@ -49,6 +49,7 @@ export class AuthService {
       .signInWithEmailAndPassword(email, password)
       .then(async (user) => {
         if (user && user.user) {
+          this.router.navigate(['/tabs/pets']);
           return true;
         }
         return false;

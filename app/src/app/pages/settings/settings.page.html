@@ -10,7 +10,7 @@
       <ion-icon slot="start" name="moon-sharp"></ion-icon>
       <ion-label>{{ 'pages.settings.use_dark_theme' | transloco }}</ion-label>
       <ion-toggle
-        [checked]="usingSystemDarkTheme"
+        [checked]="useDarkTheme"
         (ionChange)="toggleDarkTheme($event)"
         slot="end"
       ></ion-toggle>

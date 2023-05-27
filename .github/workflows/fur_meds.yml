@@ -205,7 +205,7 @@ jobs:
           IOS_SIGNING_KEY_FILE_PATH: signing-cert.p12
         run: fastlane deploy
 
-  # tag repo and create release after deploy is finished
+  # tag repo and create release after deploy of api and app is finished
   tag_and_release:
     name: Tag repo and create release
     needs: [

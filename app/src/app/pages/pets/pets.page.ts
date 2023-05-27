@@ -32,7 +32,9 @@ export class PetsPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadPets();
+    if (this.auth.isLoggedIn) {
+      this.loadPets();
+    }
   }
 
   loadPets() {
