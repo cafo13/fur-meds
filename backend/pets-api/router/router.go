@@ -179,6 +179,121 @@ func (r Router) DeletePet(ctx *gin.Context) {
 	}
 }
 
+func (r Router) SharePet(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "POST")
+
+	sharePetInviteRequest := &repository.SharePetInviteRequest{}
+	err := ctx.BindJSON(&sharePetInviteRequest)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on getting share pet invite request from json body")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
+		return
+	}
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	pet, err := r.PetsRepository.GetPet(ctx, user.UID, sharePetInviteRequest.PetUUID.String())
+	if err != nil {
+		errorMsg := fmt.Sprintf("error on loading pet with UUID '%s'", pet.UUID)
+		log.Error(errorMsg)
+		ctx.JSON(http.StatusNotFound, gin.H{"Message": errorMsg})
+		return
+	}
+
+	userUidToSharePetWith, err := r.AuthMiddleware.GetUserUidByMail(ctx, sharePetInviteRequest.UserMailToInvite)
+	if err != nil {
+		errorMsg := fmt.Sprintf("error on getting UID of user '%s' to invite to pet share for pet with UUID '%s'", sharePetInviteRequest.UserMailToInvite, pet.UUID)
+		log.Error(errorMsg)
+		ctx.JSON(http.StatusNotFound, gin.H{"Message": errorMsg})
+		return
+	}
+
+	pets, err := r.PetsRepository.UpdatePet(
+		ctx,
+		user.UID,
+		pet.UUID.String(),
+		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
+			if firestorePet.SharedWithUsers == nil {
+				firestorePet.SharedWithUsers = []repository.SharedUsers{}
+			}
+			for _, sharedUser := range firestorePet.SharedWithUsers {
+				if sharedUser.UserUid == userUidToSharePetWith {
+					return nil, fmt.Errorf("user '%s' is already invited to accept share for pet '%s'", sharePetInviteRequest.UserMailToInvite, pet.Name)
+				}
+			}
+
+			firestorePet.SharedWithUsers = append(firestorePet.SharedWithUsers, repository.SharedUsers{UserUid: userUidToSharePetWith, ShareAccepted: false})
+
+			return firestorePet, nil
+		},
+	)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error inviting user to accept share of pet")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, pets)
+		return
+	}
+}
+
+func (r Router) AcceptPetShare(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "POST")
+
+	acceptPetShareRequest := &repository.AcceptPetShareRequest{}
+	err := ctx.BindJSON(&acceptPetShareRequest)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on getting accept pet share request from json body")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
+		return
+	}
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	pets, err := r.PetsRepository.UpdatePet(
+		ctx,
+		user.UID,
+		acceptPetShareRequest.PetUUID.String(),
+		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
+			noInviteFoundError := fmt.Errorf("no open invite exists for user '%s' at pet '%s'", user.UID, acceptPetShareRequest.PetUUID.String())
+			if firestorePet.SharedWithUsers == nil {
+				return nil, noInviteFoundError
+			}
+
+			for index, sharedUser := range firestorePet.SharedWithUsers {
+				if sharedUser.UserUid == user.UID {
+					firestorePet.SharedWithUsers[index].ShareAccepted = true
+					return firestorePet, nil
+				}
+			}
+
+			return nil, noInviteFoundError
+		},
+	)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error accepting invite to share of pet")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, pets)
+		return
+	}
+}
+
 func (r Router) StartRouter(port string) {
 	r.Router.Use(r.CORSMiddleware.Middleware())
 	r.Router.Use(r.AuthMiddleware.Middleware())
@@ -190,6 +305,10 @@ func (r Router) StartRouter(port string) {
 		v1.POST("/pet", r.AddPet)
 
 		v1.PUT("/pet", r.UpdatePet)
+
+		v1.POST("/pet/share/invite", r.SharePet)
+
+		v1.POST("/pet/share/accept", r.AcceptPetShare)
 
 		v1.DELETE("/pet/:uuid", r.DeletePet)
 	}

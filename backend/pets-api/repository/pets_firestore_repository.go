@@ -61,19 +61,40 @@ func (r PetsFirestoreRepository) GetPet(ctx context.Context, userUid string, pet
 }
 
 func (r PetsFirestoreRepository) GetPets(ctx context.Context, userUid string) ([]*Pet, error) {
-	allPetDocuments, err := r.petsCollection().Where("userUid", "==", userUid).Documents(ctx).GetAll()
+	allUserPetDocuments, err := r.petsCollection().Where("userUid", "==", userUid).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get all pets for user")
 	}
 
+	allSharedPetDocumentsForUser, err := r.petsCollection().
+		Where(
+			"sharedWithUsers",
+			"array-contains",
+			SharedUsers{
+				UserUid:       userUid,
+				ShareAccepted: true,
+			},
+		).
+		Documents(ctx).GetAll()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get all pets shared with user")
+	}
+
 	var allPets []*Pet
-	for _, pet := range allPetDocuments {
+	for _, pet := range allUserPetDocuments {
 		unmarshaledPet, err := r.unmarshalPet(pet)
 		if err != nil {
 			return nil, err
 		}
 		allPets = append(allPets, unmarshaledPet)
+	}
 
+	for _, pet := range allSharedPetDocumentsForUser {
+		unmarshaledPet, err := r.unmarshalPet(pet)
+		if err != nil {
+			return nil, err
+		}
+		allPets = append(allPets, unmarshaledPet)
 	}
 
 	return allPets, nil
@@ -125,7 +146,7 @@ func (r PetsFirestoreRepository) UpdatePet(
 func (r PetsFirestoreRepository) DeletePet(ctx context.Context, userUid string, petUUID string) ([]*Pet, error) {
 	firestorePet, err := r.petsCollection().Doc(petUUID).Get(ctx)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get load with UUID '%s' before deletion", petUUID)
+		return nil, errors.Wrapf(err, "failed to load pet with UUID '%s' before deletion", petUUID)
 	}
 
 	pet, err := r.unmarshalPet(firestorePet)

@@ -13,6 +13,7 @@ import (
 
 type AuthMiddleware interface {
 	Middleware() gin.HandlerFunc
+	GetUserUidByMail(ctx *gin.Context, userMail string) (string, error)
 }
 
 type FirebaseAuthMiddleware struct {
@@ -51,6 +52,15 @@ func (a FirebaseAuthMiddleware) Middleware() gin.HandlerFunc {
 
 		ctx.Next()
 	}
+}
+
+func (a FirebaseAuthMiddleware) GetUserUidByMail(ctx *gin.Context, userMail string) (string, error) {
+	user, err := a.AuthClient.GetUserByEmail(ctx, userMail)
+	if err != nil {
+		return "", err
+	}
+
+	return user.UID, nil
 }
 
 func (a FirebaseAuthMiddleware) tokenFromHeader(r *http.Request) string {

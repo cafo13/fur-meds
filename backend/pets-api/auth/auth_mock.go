@@ -53,3 +53,7 @@ func (a MockAuthMiddleware) Middleware() gin.HandlerFunc {
 		ctx.Next()
 	}
 }
+
+func (a MockAuthMiddleware) GetUserUidByMail(ctx *gin.Context, userMail string) (string, error) {
+	return "", nil
+}

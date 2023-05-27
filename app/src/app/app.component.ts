@@ -15,9 +15,34 @@ export class AppComponent {
   public environmentInjector = inject(EnvironmentInjector);
 
   constructor(private transloco: TranslocoService) {
+    this.setupLanguage();
+    this.setupTheme();
+  }
+
+  setupLanguage() {
     const deviceLanguage = localStorage.getItem('language') || 'de';
     this.transloco.setDefaultLang(deviceLanguage);
     this.transloco.setActiveLang(deviceLanguage);
     localStorage.setItem('language', deviceLanguage);
+  }
+
+  setupTheme() {
+    const appSettingsUseDarkTheme = localStorage.getItem('useDarkTheme');
+    const deviceSettingsUseDarkTheme = window.matchMedia(
+      '(prefers-color-scheme: dark)'
+    ).matches;
+    if (appSettingsUseDarkTheme !== null) {
+      document.body.classList.toggle(
+        'dark',
+        JSON.parse(appSettingsUseDarkTheme)
+      );
+      localStorage.setItem('useDarkTheme', JSON.parse(appSettingsUseDarkTheme));
+    } else {
+      document.body.classList.toggle('dark', deviceSettingsUseDarkTheme);
+      localStorage.setItem(
+        'useDarkTheme',
+        deviceSettingsUseDarkTheme.toString()
+      );
+    }
   }
 }

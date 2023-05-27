@@ -6,12 +6,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type PetSpecies string
+type AnimalSpecies string
 
 const (
-	CAT PetSpecies = "Cat"
-	DOG PetSpecies = "Dog"
+	CAT   AnimalSpecies = "Cat"
+	DOG   AnimalSpecies = "Dog"
+	OTHER AnimalSpecies = "Other"
 )
+
+type SharePetInviteRequest struct {
+	PetUUID          uuid.UUID `json:"petUuid"`
+	UserMailToInvite string    `json:"userMailToInvite"`
+}
+
+type AcceptPetShareRequest struct {
+	PetUUID uuid.UUID `json:"petUuid"`
+}
 
 type PetMedicineFrequency struct {
 	UUID      uuid.UUID `firestore:"uuid" json:"uuid"`
@@ -38,12 +48,18 @@ type PetFood struct {
 	Frequencies []PetFoodFrequency `firestore:"frequencies" json:"frequencies"`
 }
 
-type Pet struct {
-	UUID    uuid.UUID `firestore:"uuid" json:"uuid"`
-	UserUID string    `firestore:"userUid" json:"userUid"`
-	Name    string    `firestore:"name" json:"name"`
+type SharedUsers struct {
+	UserUid       string `firestore:"userUid" json:"userUid"`
+	ShareAccepted bool   `firestore:"shareAccepted" json:"shareAccepted"`
+}
 
-	Species   PetSpecies    `firestore:"species" json:"species,omitempty"`
+type Pet struct {
+	UUID            uuid.UUID     `firestore:"uuid" json:"uuid"`
+	UserUID         string        `firestore:"userUid" json:"userUid"`
+	SharedWithUsers []SharedUsers `firestore:"sharedWithUsers" json:"sharedWithUsers"`
+	Name            string        `firestore:"name" json:"name"`
+
+	Species   AnimalSpecies `firestore:"species" json:"species,omitempty"`
 	Image     string        `firestore:"image" json:"image,omitempty"`
 	Medicines []PetMedicine `firestore:"medicines" json:"medicines,omitempty"`
 	Foods     []PetFood     `firestore:"foods" json:"foods,omitempty"`
