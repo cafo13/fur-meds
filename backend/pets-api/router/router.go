@@ -247,7 +247,7 @@ func (r Router) SharePet(ctx *gin.Context) {
 func (r Router) AcceptPetShare(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "POST")
 
-	acceptPetShareRequest := &repository.AcceptPetShareRequest{}
+	acceptPetShareRequest := &repository.AnswerPetShareRequest{}
 	err := ctx.BindJSON(&acceptPetShareRequest)
 	if err != nil {
 		wrappedError := errors.Wrap(err, "error on getting accept pet share request from json body")
@@ -294,6 +294,56 @@ func (r Router) AcceptPetShare(ctx *gin.Context) {
 	}
 }
 
+func (r Router) DenyPetShare(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "POST")
+
+	denyPetShareRequest := &repository.AnswerPetShareRequest{}
+	err := ctx.BindJSON(&denyPetShareRequest)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on getting deny pet share request from json body")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
+		return
+	}
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	pets, err := r.PetsRepository.UpdatePet(
+		ctx,
+		user.UID,
+		denyPetShareRequest.PetUUID.String(),
+		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
+			noInviteFoundError := fmt.Errorf("no open invite exists for user '%s' at pet '%s'", user.UID, denyPetShareRequest.PetUUID.String())
+			if firestorePet.SharedWithUsers == nil {
+				return nil, noInviteFoundError
+			}
+
+			for index, sharedUser := range firestorePet.SharedWithUsers {
+				if sharedUser.UserUid == user.UID {
+					firestorePet.SharedWithUsers = append(firestorePet.SharedWithUsers[:index], firestorePet.SharedWithUsers[index+1:]...)
+					return firestorePet, nil
+				}
+			}
+
+			return nil, noInviteFoundError
+		},
+	)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error accepting invite to share of pet")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, pets)
+		return
+	}
+}
+
 func (r Router) StartRouter(port string) {
 	r.Router.Use(r.CORSMiddleware.Middleware())
 	r.Router.Use(r.AuthMiddleware.Middleware())
@@ -309,6 +359,8 @@ func (r Router) StartRouter(port string) {
 		v1.POST("/pet/share/invite", r.SharePet)
 
 		v1.POST("/pet/share/accept", r.AcceptPetShare)
+
+		v1.POST("/pet/share/deny", r.DenyPetShare)
 
 		v1.DELETE("/pet/:uuid", r.DeletePet)
 	}

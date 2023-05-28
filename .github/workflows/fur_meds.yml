@@ -197,6 +197,7 @@ jobs:
       - name: Build and deploy app to app store connect testflight
         working-directory: ./app/ios/App
         env:
+          RELEASE_NOTES: ${{ github.event.head_commit.message }}
           IOS_APP_VERSION: ${{ needs.generate_semantic_version.outputs.version }}
           IOS_ASC_KEY_ID: ${{ secrets.IOS_ASC_KEY_ID }}
           IOS_ASC_ISSUER_ID: ${{ secrets.IOS_ASC_ISSUER_ID }}

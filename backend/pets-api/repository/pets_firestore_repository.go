@@ -53,7 +53,18 @@ func (r PetsFirestoreRepository) GetPet(ctx context.Context, userUid string, pet
 	if err != nil {
 		return nil, err
 	}
-	if pet.UserUID != userUid {
+
+	userIsOwnerOfPet := pet.UserUID == userUid
+	userIsSharedUserOfPet := false
+	if pet.SharedWithUsers != nil {
+		for _, sharedUser := range pet.SharedWithUsers {
+			if sharedUser.UserUid == userUid {
+				userIsSharedUserOfPet = true
+			}
+		}
+	}
+
+	if !userIsOwnerOfPet && !userIsSharedUserOfPet {
 		return nil, fmt.Errorf("user '%s' has no access to pet '%s'", userUid, petUUID)
 	}
 
@@ -120,7 +131,17 @@ func (r PetsFirestoreRepository) UpdatePet(
 		if err != nil {
 			return err
 		}
-		if pet.UserUID != userUid {
+		userIsOwnerOfPet := pet.UserUID == userUid
+		userIsSharedUserOfPet := false
+		if pet.SharedWithUsers != nil {
+			for _, sharedUser := range pet.SharedWithUsers {
+				if sharedUser.UserUid == userUid {
+					userIsSharedUserOfPet = true
+				}
+			}
+		}
+
+		if !userIsOwnerOfPet && !userIsSharedUserOfPet {
 			return fmt.Errorf("user '%s' has no access to pet '%s'", userUid, petUUID)
 		}
 
@@ -154,7 +175,7 @@ func (r PetsFirestoreRepository) DeletePet(ctx context.Context, userUid string, 
 		return nil, err
 	}
 	if pet.UserUID != userUid {
-		return nil, fmt.Errorf("user '%s' has no access to pet '%s'", userUid, petUUID)
+		return nil, fmt.Errorf("user '%s' has no access to pet '%s', only the owner of a pet is allowed to delete it", userUid, petUUID)
 	}
 
 	_, err = r.petsCollection().Doc(petUUID).Delete(ctx)

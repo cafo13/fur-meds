@@ -75,4 +75,24 @@ export class ApiService {
       .delete<Pet[]>(`${this.apiBaseDomain}/pet/${uuid}`, { headers })
       .pipe(catchError(this.handleError));
   }
+
+  // invite another user to one of your pets
+  public inviteUserToSharedPet(petUuid: string, userMailToInvite: string) {
+    const headers = this.getHeaders();
+    return this.http
+      .post(
+        `${this.apiBaseDomain}/pet/share/invite`,
+        { petUuid, userMailToInvite },
+        { headers }
+      )
+      .pipe(catchError(this.handleError));
+  }
+
+  // accept an invite to a shared pet
+  public acceptInviteToSharedPet(petUuid: string) {
+    const headers = this.getHeaders();
+    return this.http
+      .post(`${this.apiBaseDomain}/pet/share/accept`, { petUuid }, { headers })
+      .pipe(catchError(this.handleError));
+  }
 }

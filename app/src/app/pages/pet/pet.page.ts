@@ -6,6 +6,8 @@ import { Pet, PetFood, PetMedicine } from '../../types/types';
 import { SetMedicinePage } from '../set-medicine/set-medicine.page';
 import { SetFoodPage } from '../set-food/set-food.page';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
+import { catchError, finalize, of, tap } from 'rxjs';
+import { ApiService } from 'src/app/services/api.service';
 
 @Component({
   selector: 'app-pet',
@@ -21,7 +23,8 @@ export class PetPage {
   constructor(
     private modalCtrl: ModalController,
     private alertCtrl: AlertController,
-    private transloco: TranslocoService
+    private transloco: TranslocoService,
+    private api: ApiService
   ) {
     this.pet = this.input;
   }
@@ -151,6 +154,64 @@ export class PetPage {
       ],
     });
     await alert.present();
+  }
+
+  acceptInviteToSharedPet(event: any) {
+    if (!this.pet) {
+      return;
+    }
+
+    this.api
+      .acceptInviteToSharedPet('petUuid')
+      .pipe(
+        tap(() => console.log('Action performed before any other')),
+        catchError((err) => {
+          this.alertCtrl
+            .create({
+              header: this.transloco.translate('global.error'),
+              subHeader: this.transloco.translate(
+                'pages.pets.accept_shared_pet.request_failed_alert_subheader'
+              ),
+              message: err.message,
+              buttons: [this.transloco.translate('global.ok')],
+            })
+            .then((alert) => alert.present());
+          console.error('Error emitted');
+          return of([]);
+        }),
+        finalize(() => console.log('Action to be executed always'))
+      )
+      .subscribe()
+      .unsubscribe();
+  }
+
+  inviteUserToSharedPet(event: any) {
+    if (!this.pet) {
+      return;
+    }
+
+    this.api
+      .inviteUserToSharedPet(this.pet.uuid, 'levke97@gmail.com')
+      .pipe(
+        tap(() => console.log('Action performed before any other')),
+        catchError((err) => {
+          this.alertCtrl
+            .create({
+              header: this.transloco.translate('global.error'),
+              subHeader: this.transloco.translate(
+                'pages.pets.share_pet_invite.request_failed_alert_subheader'
+              ),
+              message: err.message,
+              buttons: [this.transloco.translate('global.ok')],
+            })
+            .then((alert) => alert.present());
+          console.error('Error emitted');
+          return of([]);
+        }),
+        finalize(() => console.log('Action to be executed always'))
+      )
+      .subscribe()
+      .unsubscribe();
   }
 
   cancel() {

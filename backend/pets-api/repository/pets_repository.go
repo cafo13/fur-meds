@@ -19,7 +19,7 @@ type SharePetInviteRequest struct {
 	UserMailToInvite string    `json:"userMailToInvite"`
 }
 
-type AcceptPetShareRequest struct {
+type AnswerPetShareRequest struct {
 	PetUUID uuid.UUID `json:"petUuid"`
 }
 
