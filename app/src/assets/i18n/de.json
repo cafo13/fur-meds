@@ -4,6 +4,7 @@
     "save_button": "Speichern",
     "send_button": "Senden",
     "delete_button": "Löschen",
+    "share_button": "Teilen",
     "or": "oder",
     "email": "E-Mail",
     "password": "Passwort",
@@ -72,7 +73,32 @@
       "delete_medicine_confirm_text": "Sind Sie sicher, dass Sie das Medikament {{ medicine }} löschen wollen?",
       "delete_food_confirm_text": "Sind Sie sicher, dass Sie das Futter {{ food }} löschen wollen?",
       "medicines_title": "Medikamente",
-      "foods_title": "Futter"
+      "foods_title": "Futter",
+      "share_pet_invite": {
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage bei versenden der Einladung"
+      },
+      "accept_shared_pet": {
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage bei akzeptieren der Einladung"
+      },
+      "deny_shared_pet": {
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage bei ablehnen der Einladung"
+      },
+      "name_input": {
+        "label": "Name",
+        "placeholder": "Name des Haustieres"
+      },
+      "animal_species": "Tierart auswählen",
+      "add_picture": "Bild hinzufügen",
+      "change_picture": "Bild ändern",
+      "delete_pet": {
+        "header": "Haustier löschen",
+        "confirm_text": "Sind Sie sicher, dass Sie das Haustier {{ name }} löschen wollen? Der Vorgang ist nicht umkehrbar.",
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Löschen des Haustieres"
+      },
+      "share_pet": {
+        "header": "Haustier teilen",
+        "confirm_text": "Bitte geben Sie die E-Mail-Adresse des Kontos ein, mit dem Sie Ihr Haustier teilen möchten. Die Person muss Ihre Einladung annehmen und kann dann Ihr Haustier sehen und aktualisieren. Nur das Löschen bleibt geschützt, nur mit Ihrem Account, kann Ihr Haustier gelöscht werden."
+      }
     },
     "registration": {
       "name": "Registrierung"

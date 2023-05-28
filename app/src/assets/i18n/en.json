@@ -4,6 +4,7 @@
     "save_button": "Save",
     "send_button": "Send",
     "delete_button": "Delete",
+    "share_button": "Share",
     "or": "or",
     "email": "Email",
     "password": "Password",
@@ -72,7 +73,32 @@
       "delete_medicine_confirm_text": "Are you sure you want to delete the medicine {{ medicine }}?",
       "delete_food_confirm_text": "Are you sure you want to delete the food {{ food }}?",
       "medicines_title": "Medicines",
-      "foods_title": "Foods"
+      "foods_title": "Foods",
+      "share_pet_invite": {
+        "request_failed_alert_subheader": "Failed request on sending the invitation"
+      },
+      "accept_shared_pet": {
+        "request_failed_alert_subheader": "Failed request on accepting the invitation"
+      },
+      "deny_shared_pet": {
+        "request_failed_alert_subheader": "Failed request on denying the invitation"
+      },
+      "name_input": {
+        "label": "Name",
+        "placeholder": "Name of the pet"
+      },
+      "animal_species": "Select animal species",
+      "add_picture": "Add picture",
+      "change_picture": "Change picture",
+      "delete_pet": {
+        "header": "Delete Pet",
+        "confirm_text": "Are you sure you want to delete the pet {{ name }}? The operation is ireversible.",
+        "request_failed_alert_subheader": "Failed request on deleting pet"
+      },
+      "share_pet": {
+        "header": "Share Pet",
+        "confirm_text": "Please type in the email address of the account you want to share your pet with. The person needs to accept your invite and will be able to see and update your pet afterwards. Deleting will stay protected, your pet can only be deleted with your account."
+      }
     },
     "registration": {
       "name": "Registration"

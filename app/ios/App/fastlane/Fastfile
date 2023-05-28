@@ -102,10 +102,7 @@ platform :ios do
     skip_metadata: true,
     app_version: ENV["IOS_APP_VERSION"],
     force: true, # skips verification of HTML preview file (since this will be run from a CI machine)
-    run_precheck_before_submit: false, # not supported through ASC API yet
-    release_notes: {
-      'default' => ENV["RELEASE_NOTES"]
-    }
+    run_precheck_before_submit: false # not supported through ASC API yet
   )
   end
 

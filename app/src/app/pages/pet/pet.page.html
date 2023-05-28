@@ -15,9 +15,41 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <!--<ion-button (click)="inviteUserToSharedPet($event)"> SharePet </ion-button>-->
-  <!--<ion-button (click)="acceptInviteToSharedPet($event)"> Accept shared pet </ion-button>-->
-  <!--<ion-button (click)="denyInviteToSharedPet($event)"> Deny shared pet </ion-button>-->
+  <ion-list>
+    <ion-item>
+      <ion-input
+        label="{{ 'pages.pet.name_input.label' | transloco }}"
+        labelPlacement="floating"
+        placeholder="{{ 'pages.pet.name_input.placeholder' | transloco }}"
+        value="{{ this.pet?.name }}"
+        (ionChange)="handleNameChange($event)"
+      ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-select
+        interface="action-sheet"
+        cancelText="{{ 'global.cancel_button' | transloco }}"
+        placeholder="{{ 'pages.pet.animal_species' | transloco }}"
+        value="{{ this.pet?.species }}"
+        (ionChange)="handleSpeciesChange($event)"
+      >
+        <ion-select-option
+          *ngFor="let enum of animalSpecies | keyvalue"
+          value="{{ enum.key }}"
+          >{{ enum.value | transloco }}</ion-select-option
+        >
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-button fill="outline" (click)="addPicture()"
+        >{{ this.pet?.image ? ("pages.pet.change_picture" | transloco) :
+        ("pages.pet.add_picture" | transloco) }}</ion-button
+      >
+      <ion-thumbnail slot="end">
+        <img src="{{ this.pet?.image }}" />
+      </ion-thumbnail>
+    </ion-item>
+  </ion-list>
   <ion-card>
     <ion-card-header>
       <ion-card-title
@@ -80,4 +112,21 @@
       </ion-fab>
     </ion-card-content>
   </ion-card>
+  <ion-grid>
+    <ion-row>
+      <ion-col align-self-center>
+        <ion-button
+          expand="block"
+          color="primary"
+          (click)="inviteUserToSharedPet($event)"
+        >
+          {{ 'global.share_button' | transloco }}
+        </ion-button>
+        <br />
+        <ion-button expand="block" color="danger" (click)="deletePet()">
+          {{ 'global.delete_button' | transloco }}
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

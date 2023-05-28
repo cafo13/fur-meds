@@ -68,7 +68,9 @@ export class PetsPage implements OnInit {
     modal.present();
 
     const { data, role } = await modal.onWillDismiss();
-    if (role !== 'cancel') {
+    if (role === 'delete') {
+      this.loadPets();
+    } else if (role !== 'cancel') {
       this.myPets$ = this.api.updatePet(data).pipe(
         tap(() => console.log('Action performed before any other')),
         catchError((err) => {

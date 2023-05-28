@@ -95,4 +95,12 @@ export class ApiService {
       .post(`${this.apiBaseDomain}/pet/share/accept`, { petUuid }, { headers })
       .pipe(catchError(this.handleError));
   }
+
+  // deny an invite to a shared pet
+  public denyInviteToSharedPet(petUuid: string) {
+    const headers = this.getHeaders();
+    return this.http
+      .post(`${this.apiBaseDomain}/pet/share/deny`, { petUuid }, { headers })
+      .pipe(catchError(this.handleError));
+  }
 }

@@ -30,6 +30,7 @@ export class AddPetPage {
   ) {
     this.pet = {
       uuid: uuidv4(),
+      userUid: '',
       name: '',
       species: undefined,
       image: '',
