@@ -38,3 +38,8 @@ export type Pet = {
   medicines?: PetMedicine[];
   foods?: PetFood[];
 };
+
+export type PetShareInvite = {
+  pet: Pet;
+  ownerEmail: string;
+};

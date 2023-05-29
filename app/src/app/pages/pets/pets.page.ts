@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { AlertController, IonicModule, ModalController } from '@ionic/angular';
 
 import { PetPage } from '../pet/pet.page';
-import { Pet, AnimalSpecies } from '../../types/types';
+import { Pet, AnimalSpecies, PetShareInvite } from '../../types/types';
 import { AddPetPage } from '../add-pet/add-pet.page';
 
 import { ApiService } from 'src/app/services/api.service';
@@ -11,6 +11,7 @@ import { Observable, catchError, finalize, of, tap } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { Router } from '@angular/router';
+import { PetInvitesPage } from '../pet-invites/pet-invites.page';
 
 @Component({
   selector: 'app-pets',
@@ -33,8 +34,37 @@ export class PetsPage implements OnInit {
 
   ngOnInit() {
     if (this.auth.isLoggedIn) {
+      this.loadPetShareInvites();
       this.loadPets();
     }
+  }
+
+  loadPetShareInvites() {
+    this.api
+      .getPetShareInvites()
+      .pipe(
+        tap(() => console.log('Action performed before any other')),
+        catchError((err) => {
+          this.alertCtrl
+            .create({
+              header: this.transloco.translate('global.error'),
+              subHeader: this.transloco.translate(
+                'pages.mypets.load_pet_share_invites.request_failed_alert_subheader'
+              ),
+              message: err.message,
+              buttons: [this.transloco.translate('global.ok')],
+            })
+            .then((alert) => alert.present());
+          console.error('Error emitted');
+          return of([]);
+        }),
+        finalize(() => console.log('Action to be executed always'))
+      )
+      .subscribe(async (petShareInvites: PetShareInvite[]) => {
+        if (petShareInvites && petShareInvites.length > 0) {
+          await this.openInvitesModal(petShareInvites);
+        }
+      });
   }
 
   loadPets() {
@@ -122,6 +152,18 @@ export class PetsPage implements OnInit {
         finalize(() => console.log('Action to be executed always'))
       );
     }
+  }
+
+  async openInvitesModal(invites: PetShareInvite[]) {
+    console.log('opening invites modal');
+
+    const modal = await this.modalCtrl.create({
+      component: PetInvitesPage,
+      componentProps: { invites },
+    });
+    modal.present();
+
+    await modal.onWillDismiss();
   }
 
   getSpeciesText(species: AnimalSpecies): string {

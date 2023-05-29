@@ -2,7 +2,10 @@
   <ion-toolbar>
     <ion-title>{{ 'pages.mypets.name' | transloco }}</ion-title>
     <ion-buttons slot="secondary">
-      <ion-button *ngIf="auth.isLoggedIn" (click)="loadPets()">
+      <ion-button
+        *ngIf="auth.isLoggedIn"
+        (click)="loadPetShareInvites();loadPets()"
+      >
         <ion-icon slot="icon-only" name="refresh-sharp"></ion-icon>
       </ion-button>
     </ion-buttons>

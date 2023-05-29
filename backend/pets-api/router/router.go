@@ -344,6 +344,41 @@ func (r Router) DenyPetShare(ctx *gin.Context) {
 	}
 }
 
+func (r Router) GetPetShareInvites(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "GET")
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	openSharedPets, err := r.PetsRepository.GetOpenSharedPets(ctx, user.UID)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		var petShareInvites []*repository.PetShareInvites
+		for _, pet := range openSharedPets {
+			ownerUser, err := r.AuthMiddleware.GetUserByUid(ctx, pet.UserUID)
+			if err != nil {
+				errorMsg := fmt.Sprintf("error on getting UID of pet owner user '%s'", pet.UserUID)
+				log.Error(errorMsg)
+				ctx.JSON(http.StatusInternalServerError, gin.H{"Message": errorMsg})
+				return
+			}
+			petShareInvites = append(petShareInvites, &repository.PetShareInvites{
+				Pet:        *pet,
+				OwnerEmail: ownerUser.Email,
+			})
+		}
+		ctx.IndentedJSON(http.StatusOK, petShareInvites)
+		return
+	}
+}
+
 func (r Router) StartRouter(port string) {
 	r.Router.Use(r.CORSMiddleware.Middleware())
 	r.Router.Use(r.AuthMiddleware.Middleware())
@@ -357,6 +392,8 @@ func (r Router) StartRouter(port string) {
 		v1.PUT("/pet", r.UpdatePet)
 
 		v1.POST("/pet/share/invite", r.SharePet)
+
+		v1.GET("/pet/share/invites", r.GetPetShareInvites)
 
 		v1.POST("/pet/share/accept", r.AcceptPetShare)
 

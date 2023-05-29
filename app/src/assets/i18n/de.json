@@ -36,6 +36,9 @@
       },
       "add_pet": {
         "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der Haustiere nach hinzufügen eines Haustieres"
+      },
+      "load_pet_share_invites": {
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage beim Laden der offenen Anfragen zu gemeinsamen Haustieren"
       }
     },
     "todo": {
@@ -76,12 +79,6 @@
       "foods_title": "Futter",
       "share_pet_invite": {
         "request_failed_alert_subheader": "Fehlgeschlagene Anfrage bei versenden der Einladung"
-      },
-      "accept_shared_pet": {
-        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage bei akzeptieren der Einladung"
-      },
-      "deny_shared_pet": {
-        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage bei ablehnen der Einladung"
       },
       "name_input": {
         "label": "Name",
@@ -131,6 +128,19 @@
         "explanation": "Stellen Sie die Uhrzeit und die Häufigkeit der Tage ein (z.B. 07:30 Uhr, alle 2 Tage).",
         "delete_frequency_confirm_text_one": "Sind Sie sicher, dass Sie die Häufigkeit jeden Tag um {{ time }} löschen möchten?",
         "delete_frequency_confirm_text": "Sind Sie sicher, dass Sie die Häufigkeit um {{ time }} alle {{ everyDays }} Tage löschen wollen?"
+      }
+    },
+    "pet_invites": {
+      "name": "Offene Einladungen",
+      "text": "Sie haben offene Einladungen zum Zugriff auf gemeinsame Haustiere, bitte nehmen Sie diese an oder lehnen Sie sie ab. Nachdem Sie eine Einladung zu einem gemeinsamen Haustier angenommen haben, können Sie das Haustier ansehen und auch aktualisieren. Dies ist z.B. für Haushalte, in denen sich mehrere Personen um Ihr Haustier kümmern, nützlich.",
+      "owner_email": "E-Mail des Besitzers / der Besitzerin, welche/r Sie eingeladen hat: {{ email }}",
+      "decline": "Einladung ablehnen",
+      "accept": "Einladung annehmen",
+      "accept_shared_pet": {
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage bei akzeptieren der Einladung"
+      },
+      "deny_shared_pet": {
+        "request_failed_alert_subheader": "Fehlgeschlagene Anfrage bei ablehnen der Einladung"
       }
     }
   },

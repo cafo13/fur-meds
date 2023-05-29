@@ -111,6 +111,33 @@ func (r PetsFirestoreRepository) GetPets(ctx context.Context, userUid string) ([
 	return allPets, nil
 }
 
+func (r PetsFirestoreRepository) GetOpenSharedPets(ctx context.Context, userUid string) ([]*Pet, error) {
+	allOpenSharedPetDocumentsForUser, err := r.petsCollection().
+		Where(
+			"sharedWithUsers",
+			"array-contains",
+			SharedUsers{
+				UserUid:       userUid,
+				ShareAccepted: false,
+			},
+		).
+		Documents(ctx).GetAll()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get all open shared pets for user")
+	}
+
+	var resultPets []*Pet
+	for _, pet := range allOpenSharedPetDocumentsForUser {
+		unmarshaledPet, err := r.unmarshalPet(pet)
+		if err != nil {
+			return nil, err
+		}
+		resultPets = append(resultPets, unmarshaledPet)
+	}
+
+	return resultPets, nil
+}
+
 func (r PetsFirestoreRepository) UpdatePet(
 	ctx context.Context,
 	userUid string,

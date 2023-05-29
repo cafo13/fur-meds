@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 
 import { environment } from 'src/environments/environment';
-import { Pet } from '../types/types';
+import { Pet, PetShareInvite } from '../types/types';
 
 @Injectable({
   providedIn: 'root',
@@ -85,6 +85,16 @@ export class ApiService {
         { petUuid, userMailToInvite },
         { headers }
       )
+      .pipe(catchError(this.handleError));
+  }
+
+  // get the full list of open pet share invites for user
+  public getPetShareInvites(): Observable<PetShareInvite[]> {
+    const headers = this.getHeaders();
+    return this.http
+      .get<PetShareInvite[]>(`${this.apiBaseDomain}/pet/share/invites`, {
+        headers,
+      })
       .pipe(catchError(this.handleError));
   }
 

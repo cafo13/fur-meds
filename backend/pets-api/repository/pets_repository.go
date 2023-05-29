@@ -65,10 +65,16 @@ type Pet struct {
 	Foods     []PetFood     `firestore:"foods" json:"foods,omitempty"`
 }
 
+type PetShareInvites struct {
+	Pet        Pet    `json:"pet"`
+	OwnerEmail string `json:"ownerEmail"`
+}
+
 type PetsRepository interface {
 	AddPet(ctx context.Context, userUid string, pet *Pet) ([]*Pet, error)
 	GetPet(ctx context.Context, userUid string, petUUID string) (*Pet, error)
 	GetPets(ctx context.Context, userUid string) ([]*Pet, error)
+	GetOpenSharedPets(ctx context.Context, userUid string) ([]*Pet, error)
 	UpdatePet(
 		ctx context.Context,
 		userUid string,

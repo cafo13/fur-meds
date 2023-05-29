@@ -1,0 +1,52 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>{{ 'pages.pet_invites.name' | transloco }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-row>
+    <ion-col align-self-center>
+      <ion-text>{{ 'pages.pet_invites.text' | transloco }}</ion-text>
+    </ion-col>
+  </ion-row>
+  <ion-list>
+    <ion-item *ngFor="let invite of this.invites;let inviteIndex=index;">
+      <ion-card>
+        <ion-img
+          *ngIf="invite.pet.image"
+          alt="cannot display image"
+          src="{{ invite.pet.image }}"
+        />
+        <ion-card-header>
+          <ion-card-title
+            >{{ invite.pet.name }} ({{ invite.pet.species ?
+            (this.getSpeciesText(invite.pet.species) | transloco): ""
+            }})</ion-card-title
+          >
+          <ion-card-subtitle
+            >{{ this.transloco.translate('pages.pet_invites.owner_email', {
+            email: invite.ownerEmail }) }}</ion-card-subtitle
+          >
+        </ion-card-header>
+        <ion-row>
+          <ion-col align-self-center>
+            <ion-button
+              expand="block"
+              color="success"
+              (click)="acceptInvite(invite, inviteIndex)"
+              >{{ 'pages.pet_invites.accept' | transloco }}</ion-button
+            >
+            <br />
+            <ion-button
+              expand="block"
+              color="danger"
+              (click)="declineInvite(invite, inviteIndex)"
+              >{{ 'pages.pet_invites.decline' | transloco }}</ion-button
+            >
+          </ion-col>
+        </ion-row>
+      </ion-card>
+    </ion-item>
+  </ion-list>
+</ion-content>

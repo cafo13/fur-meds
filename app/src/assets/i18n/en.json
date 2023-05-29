@@ -36,6 +36,9 @@
       },
       "add_pet": {
         "request_failed_alert_subheader": "Failed request on loading pets after adding pet"
+      },
+      "pet_share_invites": {
+        "request_failed_alert_subheader": "Failed request on loading open pet share invites"
       }
     },
     "todo": {
@@ -76,12 +79,6 @@
       "foods_title": "Foods",
       "share_pet_invite": {
         "request_failed_alert_subheader": "Failed request on sending the invitation"
-      },
-      "accept_shared_pet": {
-        "request_failed_alert_subheader": "Failed request on accepting the invitation"
-      },
-      "deny_shared_pet": {
-        "request_failed_alert_subheader": "Failed request on denying the invitation"
       },
       "name_input": {
         "label": "Name",
@@ -131,6 +128,19 @@
         "explanation": "Set the time and the frequency of days (for example, 07:30 am, every 2 days).",
         "delete_frequency_confirm_text_one": "Are you sure you want to delete the frequency at {{ time }} every day?",
         "delete_frequency_confirm_text": "Are you sure you want to delete the frequency at {{ time }} every {{ everyDays }} days?"
+      }
+    },
+    "pet_invites": {
+      "name": "Open invites",
+      "text": "You have open invites to access shared pets, please accept or deny them. After accepting an invite to a shared pet, you are able to view and also update the pet, e.g. this is useful for households, where multiple persons take care of your pet.",
+      "owner_email": "Email of owner, who invited you: {{ email }}",
+      "decline": "Decline invite",
+      "accept": "Accept invite",
+      "accept_shared_pet": {
+        "request_failed_alert_subheader": "Failed request on accepting the invitation"
+      },
+      "deny_shared_pet": {
+        "request_failed_alert_subheader": "Failed request on denying the invitation"
       }
     }
   },

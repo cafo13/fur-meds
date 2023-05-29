@@ -233,72 +233,13 @@ export class PetPage {
                   }),
                   finalize(() => console.log('Action to be executed always'))
                 )
-                .subscribe()
-                .unsubscribe();
+                .subscribe();
             }
           },
         },
       ],
     });
     await alert.present();
-  }
-
-  acceptInviteToSharedPet(event: any) {
-    if (!this.pet) {
-      return;
-    }
-
-    this.api
-      .acceptInviteToSharedPet('petUuid')
-      .pipe(
-        tap(() => console.log('Action performed before any other')),
-        catchError((err) => {
-          this.alertCtrl
-            .create({
-              header: this.transloco.translate('global.error'),
-              subHeader: this.transloco.translate(
-                'pages.pet.accept_shared_pet.request_failed_alert_subheader'
-              ),
-              message: err.message,
-              buttons: [this.transloco.translate('global.ok')],
-            })
-            .then((alert) => alert.present());
-          console.error('Error emitted');
-          return of([]);
-        }),
-        finalize(() => console.log('Action to be executed always'))
-      )
-      .subscribe()
-      .unsubscribe();
-  }
-
-  denyInviteToSharedPet(event: any) {
-    if (!this.pet) {
-      return;
-    }
-
-    this.api
-      .denyInviteToSharedPet('petUuid')
-      .pipe(
-        tap(() => console.log('Action performed before any other')),
-        catchError((err) => {
-          this.alertCtrl
-            .create({
-              header: this.transloco.translate('global.error'),
-              subHeader: this.transloco.translate(
-                'pages.pet.deny_shared_pet.request_failed_alert_subheader'
-              ),
-              message: err.message,
-              buttons: [this.transloco.translate('global.ok')],
-            })
-            .then((alert) => alert.present());
-          console.error('Error emitted');
-          return of([]);
-        }),
-        finalize(() => console.log('Action to be executed always'))
-      )
-      .subscribe()
-      .unsubscribe();
   }
 
   async deletePet() {
@@ -344,10 +285,10 @@ export class PetPage {
                   }),
                   finalize(() => console.log('Action to be executed always'))
                 )
-                .subscribe()
-                .unsubscribe();
-              console.log('Successfully deleted pet ' + this.pet?.uuid);
-              this.modalCtrl.dismiss(null, 'delete');
+                .subscribe(() => {
+                  console.log('Successfully deleted pet ' + this.pet?.uuid);
+                  this.modalCtrl.dismiss(null, 'delete');
+                });
             }
           },
         },
