@@ -21,6 +21,18 @@ func (r PetsFirestoreRepository) petsCollection() *firestore.CollectionRef {
 	return r.firestoreClient.Collection("pets")
 }
 
+func (r PetsFirestoreRepository) medicinesCollection() *firestore.CollectionRef {
+	return r.firestoreClient.Collection("medicines")
+}
+
+func (r PetsFirestoreRepository) foodsCollection() *firestore.CollectionRef {
+	return r.firestoreClient.Collection("foods")
+}
+
+func (r PetsFirestoreRepository) todosCollection() *firestore.CollectionRef {
+	return r.firestoreClient.Collection("todos")
+}
+
 func (r PetsFirestoreRepository) AddPet(ctx context.Context, userUid string, pet *Pet) ([]*Pet, error) {
 	collection := r.petsCollection()
 
@@ -41,6 +53,14 @@ func (r PetsFirestoreRepository) AddPet(ctx context.Context, userUid string, pet
 	}
 
 	return userPets, nil
+}
+
+func (r PetsFirestoreRepository) AddPetMedicine(ctx context.Context, userUid string, petMedicine *PetMedicine) ([]*PetMedicine, error) {
+	return nil, nil
+}
+
+func (r PetsFirestoreRepository) AddPetFood(ctx context.Context, userUid string, petFood *PetFood) ([]*PetFood, error) {
+	return nil, nil
 }
 
 func (r PetsFirestoreRepository) GetPet(ctx context.Context, userUid string, petUUID string) (*Pet, error) {
@@ -71,6 +91,14 @@ func (r PetsFirestoreRepository) GetPet(ctx context.Context, userUid string, pet
 	return pet, nil
 }
 
+func (r PetsFirestoreRepository) GetPetMedicine(ctx context.Context, userUid string, petMedicineUUID string) (*Pet, error) {
+	return nil, nil
+}
+
+func (r PetsFirestoreRepository) GetPetFood(ctx context.Context, userUid string, petFoodUUID string) (*Pet, error) {
+	return nil, nil
+}
+
 func (r PetsFirestoreRepository) GetPets(ctx context.Context, userUid string) ([]*Pet, error) {
 	allUserPetDocuments, err := r.petsCollection().Where("userUid", "==", userUid).Documents(ctx).GetAll()
 	if err != nil {
@@ -81,7 +109,7 @@ func (r PetsFirestoreRepository) GetPets(ctx context.Context, userUid string) ([
 		Where(
 			"sharedWithUsers",
 			"array-contains",
-			SharedUsers{
+			PetShares{
 				UserUid:       userUid,
 				ShareAccepted: true,
 			},
@@ -111,12 +139,24 @@ func (r PetsFirestoreRepository) GetPets(ctx context.Context, userUid string) ([
 	return allPets, nil
 }
 
+func (r PetsFirestoreRepository) GetPetMedicines(ctx context.Context, userUid string, petUuid string) ([]*PetMedicine, error) {
+	return nil, nil
+}
+
+func (r PetsFirestoreRepository) GetPetFoods(ctx context.Context, userUid string, petUuid string) ([]*PetFood, error) {
+	return nil, nil
+}
+
+func (r PetsFirestoreRepository) GetToDos(ctx context.Context, userUid string) ([]*ToDo, error) {
+	return nil, nil
+}
+
 func (r PetsFirestoreRepository) GetOpenSharedPets(ctx context.Context, userUid string) ([]*Pet, error) {
 	allOpenSharedPetDocumentsForUser, err := r.petsCollection().
 		Where(
 			"sharedWithUsers",
 			"array-contains",
-			SharedUsers{
+			PetShares{
 				UserUid:       userUid,
 				ShareAccepted: false,
 			},
@@ -138,12 +178,11 @@ func (r PetsFirestoreRepository) GetOpenSharedPets(ctx context.Context, userUid 
 	return resultPets, nil
 }
 
-func (r PetsFirestoreRepository) UpdatePet(
-	ctx context.Context,
-	userUid string,
-	petUUID string,
-	updateFn func(ctx context.Context, pet *Pet) (*Pet, error),
-) ([]*Pet, error) {
+func (r PetsFirestoreRepository) GenerateToDos(ctx context.Context, userUid string) error {
+	return nil
+}
+
+func (r PetsFirestoreRepository) UpdatePet(ctx context.Context, userUid string, petUUID string, updateFn func(ctx context.Context, pet *Pet) (*Pet, error)) ([]*Pet, error) {
 	petsCollection := r.petsCollection()
 
 	err := r.firestoreClient.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
@@ -191,6 +230,14 @@ func (r PetsFirestoreRepository) UpdatePet(
 	return userPets, nil
 }
 
+func (r PetsFirestoreRepository) UpdatePetMedicine(ctx context.Context, userUid string, medicineUUID string, updateFn func(ctx context.Context, petMedicine *PetMedicine) (*PetMedicine, error)) ([]*PetMedicine, error) {
+	return nil, nil
+}
+
+func (r PetsFirestoreRepository) UpdatePetFood(ctx context.Context, userUid string, foodUUID string, updateFn func(ctx context.Context, petFood *PetFood) (*PetFood, error)) ([]*PetFood, error) {
+	return nil, nil
+}
+
 func (r PetsFirestoreRepository) DeletePet(ctx context.Context, userUid string, petUUID string) ([]*Pet, error) {
 	firestorePet, err := r.petsCollection().Doc(petUUID).Get(ctx)
 	if err != nil {
@@ -216,6 +263,14 @@ func (r PetsFirestoreRepository) DeletePet(ctx context.Context, userUid string, 
 	}
 
 	return userPets, nil
+}
+
+func (r PetsFirestoreRepository) DeletePetMedicine(ctx context.Context, userUid string, medicineUUID string) ([]*PetMedicine, error) {
+	return nil, nil
+}
+
+func (r PetsFirestoreRepository) DeletePetFood(ctx context.Context, userUid string, foodUUID string) ([]*PetFood, error) {
+	return nil, nil
 }
 
 func (r PetsFirestoreRepository) unmarshalPet(doc *firestore.DocumentSnapshot) (*Pet, error) {

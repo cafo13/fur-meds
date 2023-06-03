@@ -18,8 +18,22 @@ import (
 type GinRouter interface {
 	GetPets(ctx *gin.Context)
 	AddPet(ctx *gin.Context)
+	AddPetMedicine(ctx *gin.Context)
+	AddPetFood(ctx *gin.Context)
 	UpdatePet(ctx *gin.Context)
+	UpdatePetMedicine(ctx *gin.Context)
+	UpdatePetFood(ctx *gin.Context)
+	SharePet(ctx *gin.Context)
+	GetPetShareInvites(ctx *gin.Context)
+	AcceptPetShare(ctx *gin.Context)
+	DenyPetShare(ctx *gin.Context)
 	DeletePet(ctx *gin.Context)
+	DeletePetMedicine(ctx *gin.Context)
+	DeletePetFood(ctx *gin.Context)
+	GetPetMedicines(ctx *gin.Context)
+	GetPetFoods(ctx *gin.Context)
+	GetToDos(ctx *gin.Context)
+	GenerateToDos(ctx *gin.Context)
 
 	StartRouter(port string)
 }
@@ -95,6 +109,66 @@ func (r Router) AddPet(ctx *gin.Context) {
 	}
 }
 
+func (r Router) AddPetMedicine(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "POST")
+
+	petMedicine := &repository.PetMedicine{}
+	err := ctx.BindJSON(&petMedicine)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on getting pet medicine from json body")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError.Error()})
+		return
+	}
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	pets, err := r.PetsRepository.AddPetMedicine(ctx, user.UID, petMedicine)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusCreated, pets)
+		return
+	}
+}
+
+func (r Router) AddPetFood(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "POST")
+
+	petFood := &repository.PetFood{}
+	err := ctx.BindJSON(&petFood)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on getting pet food from json body")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError.Error()})
+		return
+	}
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	pets, err := r.PetsRepository.AddPetFood(ctx, user.UID, petFood)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusCreated, pets)
+		return
+	}
+}
+
 func (r Router) UpdatePet(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "PUT")
 
@@ -157,6 +231,130 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 	}
 }
 
+func (r Router) UpdatePetMedicine(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "PUT")
+
+	petMedicine := &repository.PetMedicine{}
+	err := ctx.BindJSON(&petMedicine)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on getting pet medicine from json body")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
+		return
+	}
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	_, err = r.PetsRepository.GetPetMedicine(ctx, user.UID, petMedicine.UUID.String())
+	if err != nil {
+		errorMsg := fmt.Sprintf("error on loading pet medicine with UUID '%s'", petMedicine.UUID)
+		log.Error(errorMsg)
+		ctx.JSON(http.StatusNotFound, gin.H{"Message": errorMsg})
+		return
+	}
+
+	pets, err := r.PetsRepository.UpdatePetMedicine(
+		ctx,
+		user.UID,
+		petMedicine.UUID.String(),
+		func(context context.Context, firestorePetMedicine *repository.PetMedicine) (*repository.PetMedicine, error) {
+			if petMedicine.Name != "" && petMedicine.Name != firestorePetMedicine.Name {
+				firestorePetMedicine.Name = petMedicine.Name
+			}
+			if petMedicine.Dosage != 0 && petMedicine.Dosage != firestorePetMedicine.Dosage {
+				firestorePetMedicine.Dosage = petMedicine.Dosage
+			}
+			if petMedicine.Unit != "" && petMedicine.Unit != firestorePetMedicine.Unit {
+				firestorePetMedicine.Unit = petMedicine.Unit
+			}
+			if petMedicine.Stock != 0 && petMedicine.Stock != firestorePetMedicine.Stock {
+				firestorePetMedicine.Stock = petMedicine.Stock
+			}
+			if len(petMedicine.Frequencies) != 0 && !reflect.DeepEqual(petMedicine.Frequencies, firestorePetMedicine.Frequencies) {
+				firestorePetMedicine.Frequencies = petMedicine.Frequencies
+			}
+
+			return firestorePetMedicine, nil
+		},
+	)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on updating pet medicine")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, pets)
+		return
+	}
+}
+
+func (r Router) UpdatePetFood(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "PUT")
+
+	petFood := &repository.PetFood{}
+	err := ctx.BindJSON(&petFood)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on getting pet food from json body")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
+		return
+	}
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	_, err = r.PetsRepository.GetPetFood(ctx, user.UID, petFood.UUID.String())
+	if err != nil {
+		errorMsg := fmt.Sprintf("error on loading pet food with UUID '%s'", petFood.UUID)
+		log.Error(errorMsg)
+		ctx.JSON(http.StatusNotFound, gin.H{"Message": errorMsg})
+		return
+	}
+
+	pets, err := r.PetsRepository.UpdatePetFood(
+		ctx,
+		user.UID,
+		petFood.UUID.String(),
+		func(context context.Context, firestorePetFood *repository.PetFood) (*repository.PetFood, error) {
+			if petFood.Name != "" && petFood.Name != firestorePetFood.Name {
+				firestorePetFood.Name = petFood.Name
+			}
+			if petFood.Dosage != 0 && petFood.Dosage != firestorePetFood.Dosage {
+				firestorePetFood.Dosage = petFood.Dosage
+			}
+			if petFood.Unit != "" && petFood.Unit != firestorePetFood.Unit {
+				firestorePetFood.Unit = petFood.Unit
+			}
+			if petFood.Stock != 0 && petFood.Stock != firestorePetFood.Stock {
+				firestorePetFood.Stock = petFood.Stock
+			}
+			if len(petFood.Frequencies) != 0 && !reflect.DeepEqual(petFood.Frequencies, firestorePetFood.Frequencies) {
+				firestorePetFood.Frequencies = petFood.Frequencies
+			}
+
+			return firestorePetFood, nil
+		},
+	)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on updating pet food")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, pets)
+		return
+	}
+}
+
 func (r Router) DeletePet(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "DELETE")
 
@@ -169,6 +367,50 @@ func (r Router) DeletePet(ctx *gin.Context) {
 
 	petUUID := ctx.Params.ByName("uuid")
 	pets, err := r.PetsRepository.DeletePet(ctx, user.UID, petUUID)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, pets)
+		return
+	}
+}
+
+func (r Router) DeletePetMedicine(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "DELETE")
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	petMedicineUUID := ctx.Params.ByName("uuid")
+	pets, err := r.PetsRepository.DeletePetMedicine(ctx, user.UID, petMedicineUUID)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, pets)
+		return
+	}
+}
+
+func (r Router) DeletePetFood(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "DELETE")
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	petFoodUUID := ctx.Params.ByName("uuid")
+	pets, err := r.PetsRepository.DeletePetFood(ctx, user.UID, petFoodUUID)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -220,7 +462,7 @@ func (r Router) SharePet(ctx *gin.Context) {
 		pet.UUID.String(),
 		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
 			if firestorePet.SharedWithUsers == nil {
-				firestorePet.SharedWithUsers = []repository.SharedUsers{}
+				firestorePet.SharedWithUsers = []repository.PetShares{}
 			}
 			for _, sharedUser := range firestorePet.SharedWithUsers {
 				if sharedUser.UserUid == userUidToSharePetWith {
@@ -228,7 +470,7 @@ func (r Router) SharePet(ctx *gin.Context) {
 				}
 			}
 
-			firestorePet.SharedWithUsers = append(firestorePet.SharedWithUsers, repository.SharedUsers{UserUid: userUidToSharePetWith, ShareAccepted: false})
+			firestorePet.SharedWithUsers = append(firestorePet.SharedWithUsers, repository.PetShares{UserUid: userUidToSharePetWith, ShareAccepted: false})
 
 			return firestorePet, nil
 		},
@@ -379,18 +621,126 @@ func (r Router) GetPetShareInvites(ctx *gin.Context) {
 	}
 }
 
+func (r Router) GetPetMedicines(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "GET")
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	petUuid := ctx.Params.ByName("petUuid")
+	petMedicines, err := r.PetsRepository.GetPetMedicines(ctx, user.UID, petUuid)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, petMedicines)
+		return
+	}
+}
+
+func (r Router) GetPetFoods(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "GET")
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	petUuid := ctx.Params.ByName("petUuid")
+	petFoods, err := r.PetsRepository.GetPetFoods(ctx, user.UID, petUuid)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, petFoods)
+		return
+	}
+}
+
+func (r Router) GetToDos(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "GET")
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	todos, err := r.PetsRepository.GetToDos(ctx, user.UID)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, todos)
+		return
+	}
+}
+
+func (r Router) GenerateToDos(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "POST")
+
+	user, err := auth.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	err = r.PetsRepository.GenerateToDos(ctx, user.UID)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.JSON(http.StatusOK, gin.H{"Message": "successfully generated todos"})
+		return
+	}
+}
+
 func (r Router) StartRouter(port string) {
 	r.Router.Use(r.CORSMiddleware.Middleware())
 	r.Router.Use(r.AuthMiddleware.Middleware())
 
 	v1 := r.Router.Group("/api/v1")
 	{
+		// pets
 		v1.GET("/pets", r.GetPets)
 
 		v1.POST("/pet", r.AddPet)
 
 		v1.PUT("/pet", r.UpdatePet)
 
+		v1.DELETE("/pet/:uuid", r.DeletePet)
+
+		// pet medicines
+		v1.GET("/pet/:petUuid/medicines", r.GetPetMedicines)
+
+		v1.POST("/pet/medicine", r.AddPetMedicine)
+
+		v1.PUT("/pet/medicine", r.UpdatePetMedicine)
+
+		v1.DELETE("/pet/medicine/:uuid", r.DeletePetMedicine)
+
+		// pet foods
+		v1.GET("/pet/:petUuid/foods", r.GetPetFoods)
+
+		v1.POST("/pet/food", r.AddPetFood)
+
+		v1.PUT("/pet/food", r.UpdatePetFood)
+
+		v1.DELETE("/pet/food/:uuid", r.DeletePetFood)
+
+		// pet shares
 		v1.POST("/pet/share/invite", r.SharePet)
 
 		v1.GET("/pet/share/invites", r.GetPetShareInvites)
@@ -399,7 +749,10 @@ func (r Router) StartRouter(port string) {
 
 		v1.POST("/pet/share/deny", r.DenyPetShare)
 
-		v1.DELETE("/pet/:uuid", r.DeletePet)
+		// todos
+		v1.GET("/todos", r.GetToDos)
+
+		v1.POST("/todos/generate", r.GenerateToDos)
 	}
 
 	r.Router.Run(":" + port)
