@@ -31,8 +31,8 @@ type Food struct {
 }
 
 type FoodRepository interface {
-	AddFood(ctx context.Context, userUid string, petFood *Food) ([]*Food, error)
-	GetFood(ctx context.Context, userUid string, petFoodUUID string) (*Pet, error)
+	AddFood(ctx context.Context, userUid string, petUuid string, petFood *Food) ([]*Food, error)
+	GetFood(ctx context.Context, userUid string, petFoodUUID string) (*Food, error)
 	GetFoods(ctx context.Context, userUid string, petUuid string) ([]*Food, error)
 	UpdateFood(ctx context.Context, userUid string, foodUUID string, updateFn func(ctx context.Context, petFood *Food) (*Food, error)) ([]*Food, error)
 	DeleteFood(ctx context.Context, userUid string, foodUUID string) ([]*Food, error)

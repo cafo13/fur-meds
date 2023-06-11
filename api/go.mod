@@ -1,4 +1,4 @@
-module github.com/cafo13/fur-meds/backend
+module github.com/cafo13/fur-meds/api
 
 go 1.20
 

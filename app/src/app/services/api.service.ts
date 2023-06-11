@@ -34,7 +34,7 @@ export class ApiService {
       console.error('An error occurred:', error.error);
     } else {
       console.error(
-        `Backend returned code ${error.status}, body was: `,
+        `Api returned code ${error.status}, body was: `,
         error.error
       );
     }

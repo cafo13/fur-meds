@@ -8,11 +8,11 @@ import (
 
 	"cloud.google.com/go/firestore"
 
-	"github.com/cafo13/fur-meds/backend/auth"
-	"github.com/cafo13/fur-meds/backend/cors"
-	"github.com/cafo13/fur-meds/backend/handler"
-	"github.com/cafo13/fur-meds/backend/repository"
-	"github.com/cafo13/fur-meds/backend/router"
+	"github.com/cafo13/fur-meds/api/auth"
+	"github.com/cafo13/fur-meds/api/cors"
+	"github.com/cafo13/fur-meds/api/handler"
+	"github.com/cafo13/fur-meds/api/repository"
+	"github.com/cafo13/fur-meds/api/router"
 
 	firebase "firebase.google.com/go/v4"
 	log "github.com/sirupsen/logrus"
@@ -72,12 +72,13 @@ func main() {
 
 	authMiddleware := setupAuthMiddleware(gcpProject)
 	corsMiddleware := cors.NewAllowingCORSMiddleware()
+	todoChannel := make(chan string)
 	firestoreClient := setupFirestoreClient(context.Background(), gcpProject)
 	router := setupRouter(authMiddleware, &corsMiddleware, &router.HandlerSet{
-		PetHandler:      handler.NewPetHandler(repository.NewPetFirestoreRepository(firestoreClient)),
+		PetHandler:      handler.NewPetHandler(repository.NewPetFirestoreRepository(firestoreClient), todoChannel),
 		MedicineHandler: handler.NewMedicineHandler(repository.NewMedicineFirestoreRepository(firestoreClient)),
 		FoodHandler:     handler.NewFoodHandler(repository.NewFoodFirestoreRepository(firestoreClient)),
-		TodoHandler:     handler.NewTodoHandler(repository.NewTodoFirestoreRepository(firestoreClient)),
+		TodoHandler:     handler.NewTodoHandler(repository.NewTodoFirestoreRepository(firestoreClient), todoChannel),
 	})
 
 	router.StartRouter(apiPort)

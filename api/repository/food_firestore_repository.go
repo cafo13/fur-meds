@@ -18,11 +18,11 @@ func (r FoodFirestoreRepository) foodsCollection() *firestore.CollectionRef {
 	return r.firestoreClient.Collection("foods")
 }
 
-func (r FoodFirestoreRepository) AddFood(ctx context.Context, userUid string, food *Food) ([]*Food, error) {
+func (r FoodFirestoreRepository) AddFood(ctx context.Context, userUid string, petUuid string, food *Food) ([]*Food, error) {
 	return nil, nil
 }
 
-func (r FoodFirestoreRepository) GetFood(ctx context.Context, userUid string, foodUUID string) (*Pet, error) {
+func (r FoodFirestoreRepository) GetFood(ctx context.Context, userUid string, foodUUID string) (*Food, error) {
 	return nil, nil
 }
 func (r FoodFirestoreRepository) GetFoods(ctx context.Context, userUid string, petUuid string) ([]*Food, error) {

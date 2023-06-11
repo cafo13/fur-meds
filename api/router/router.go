@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 
-	"github.com/cafo13/fur-meds/backend/auth"
-	"github.com/cafo13/fur-meds/backend/cors"
-	"github.com/cafo13/fur-meds/backend/handler"
-	"github.com/cafo13/fur-meds/backend/repository"
+	"github.com/cafo13/fur-meds/api/auth"
+	"github.com/cafo13/fur-meds/api/cors"
+	"github.com/cafo13/fur-meds/api/handler"
+	"github.com/cafo13/fur-meds/api/repository"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -84,7 +83,7 @@ func (r Router) AddPet(ctx *gin.Context) {
 		return
 	}
 
-	pets, err := r.PetHandler.CreatePet(ctx, user.UID, pet)
+	pets, err := r.PetHandler.Create(ctx, user.UID, pet)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -122,7 +121,7 @@ func (r Router) AddPetMedicine(ctx *gin.Context) {
 		return
 	}
 
-	hasAccess, err := r.PetHandler.CheckIfUserHasAccessToPet(ctx, user.UID, petUuid)
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
 	if err != nil {
 		err := errors.New("error on checking if user has access to pet")
 		log.Error(err)
@@ -137,7 +136,7 @@ func (r Router) AddPetMedicine(ctx *gin.Context) {
 		return
 	}
 
-	pets, err := r.MedicineHandler.CreateMedicine(ctx, user.UID, petUuid, medicine)
+	pets, err := r.MedicineHandler.Create(ctx, user.UID, petUuid, medicine)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -151,15 +150,6 @@ func (r Router) AddPetMedicine(ctx *gin.Context) {
 func (r Router) AddPetFood(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "POST")
 
-	petFood := &repository.Food{}
-	err := ctx.BindJSON(&petFood)
-	if err != nil {
-		wrappedError := errors.Wrap(err, "error on getting pet food from json body")
-		log.Error(wrappedError)
-		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError.Error()})
-		return
-	}
-
 	user, err := r.AuthMiddleware.UserFromCtx(ctx)
 	if err != nil {
 		log.Error(err)
@@ -167,7 +157,39 @@ func (r Router) AddPetFood(ctx *gin.Context) {
 		return
 	}
 
-	pets, err := r.PetRepository.AddPetFood(ctx, user.UID, petFood)
+	food := &repository.Food{}
+	err = ctx.BindJSON(&food)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on getting pet food from json body")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError.Error()})
+		return
+	}
+
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	pets, err := r.FoodHandler.Create(ctx, user.UID, petUuid, food)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -197,38 +219,38 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 		return
 	}
 
-	_, err = r.PetRepository.GetPet(ctx, user.UID, pet.UUID.String())
+	petUuid := ctx.Params.ByName("uuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
 	if err != nil {
-		errorMsg := fmt.Sprintf("error on loading pet with UUID '%s'", pet.UUID)
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	_, err = r.PetHandler.Get(ctx, user.UID, petUuid)
+	if err != nil {
+		errorMsg := fmt.Sprintf("error on loading pet with UUID '%s'", petUuid)
 		log.Error(errorMsg)
 		ctx.JSON(http.StatusNotFound, gin.H{"Message": errorMsg})
 		return
 	}
 
-	pets, err := r.PetRepository.UpdatePet(
-		ctx,
-		user.UID,
-		pet.UUID.String(),
-		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
-			if pet.Name != "" && pet.Name != firestorePet.Name {
-				firestorePet.Name = pet.Name
-			}
-			if pet.Species != "" && pet.Species != firestorePet.Species {
-				firestorePet.Species = pet.Species
-			}
-			if pet.Image != "" && pet.Image != firestorePet.Image {
-				firestorePet.Image = pet.Image
-			}
-			if len(pet.Medicines) != 0 && !reflect.DeepEqual(pet.Medicines, firestorePet.Medicines) {
-				firestorePet.Medicines = pet.Medicines
-			}
-			if len(pet.Foods) != 0 && !reflect.DeepEqual(pet.Foods, firestorePet.Foods) {
-				firestorePet.Foods = pet.Foods
-			}
-
-			return firestorePet, nil
-		},
-	)
+	pets, err := r.PetHandler.Update(ctx, user.UID, petUuid, pet)
 	if err != nil {
 		wrappedError := errors.Wrap(err, "error on updating pet")
 		log.Error(wrappedError)
@@ -243,10 +265,10 @@ func (r Router) UpdatePet(ctx *gin.Context) {
 func (r Router) UpdatePetMedicine(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "PUT")
 
-	petMedicine := &repository.Medicine{}
-	err := ctx.BindJSON(&petMedicine)
+	medicine := &repository.Medicine{}
+	err := ctx.BindJSON(&medicine)
 	if err != nil {
-		wrappedError := errors.Wrap(err, "error on getting pet medicine from json body")
+		wrappedError := errors.Wrap(err, "error on getting medicine from json body")
 		log.Error(wrappedError)
 		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
 		return
@@ -259,40 +281,48 @@ func (r Router) UpdatePetMedicine(ctx *gin.Context) {
 		return
 	}
 
-	_, err = r.PetRepository.GetPetMedicine(ctx, user.UID, petMedicine.UUID.String())
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
 	if err != nil {
-		errorMsg := fmt.Sprintf("error on loading pet medicine with UUID '%s'", petMedicine.UUID)
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	medicineUuid := ctx.Params.ByName("uuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting medicine UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	_, err = r.MedicineHandler.Get(ctx, user.UID, medicineUuid)
+	if err != nil {
+		errorMsg := fmt.Sprintf("error on loading medicine with UUID '%s'", medicineUuid)
 		log.Error(errorMsg)
 		ctx.JSON(http.StatusNotFound, gin.H{"Message": errorMsg})
 		return
 	}
 
-	pets, err := r.PetRepository.UpdatePetMedicine(
-		ctx,
-		user.UID,
-		petMedicine.UUID.String(),
-		func(context context.Context, firestorePetMedicine *repository.Medicine) (*repository.Medicine, error) {
-			if petMedicine.Name != "" && petMedicine.Name != firestorePetMedicine.Name {
-				firestorePetMedicine.Name = petMedicine.Name
-			}
-			if petMedicine.Dosage != 0 && petMedicine.Dosage != firestorePetMedicine.Dosage {
-				firestorePetMedicine.Dosage = petMedicine.Dosage
-			}
-			if petMedicine.Unit != "" && petMedicine.Unit != firestorePetMedicine.Unit {
-				firestorePetMedicine.Unit = petMedicine.Unit
-			}
-			if petMedicine.Stock != 0 && petMedicine.Stock != firestorePetMedicine.Stock {
-				firestorePetMedicine.Stock = petMedicine.Stock
-			}
-			if len(petMedicine.Frequencies) != 0 && !reflect.DeepEqual(petMedicine.Frequencies, firestorePetMedicine.Frequencies) {
-				firestorePetMedicine.Frequencies = petMedicine.Frequencies
-			}
-
-			return firestorePetMedicine, nil
-		},
-	)
+	pets, err := r.MedicineHandler.Update(ctx, user.UID, medicineUuid, medicine)
 	if err != nil {
-		wrappedError := errors.Wrap(err, "error on updating pet medicine")
+		wrappedError := errors.Wrap(err, "error on updating medicine")
 		log.Error(wrappedError)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
 		return
@@ -305,10 +335,10 @@ func (r Router) UpdatePetMedicine(ctx *gin.Context) {
 func (r Router) UpdatePetFood(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "PUT")
 
-	petFood := &repository.Food{}
-	err := ctx.BindJSON(&petFood)
+	food := &repository.Food{}
+	err := ctx.BindJSON(&food)
 	if err != nil {
-		wrappedError := errors.Wrap(err, "error on getting pet food from json body")
+		wrappedError := errors.Wrap(err, "error on getting food from json body")
 		log.Error(wrappedError)
 		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
 		return
@@ -321,40 +351,48 @@ func (r Router) UpdatePetFood(ctx *gin.Context) {
 		return
 	}
 
-	_, err = r.PetRepository.GetPetFood(ctx, user.UID, petFood.UUID.String())
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
 	if err != nil {
-		errorMsg := fmt.Sprintf("error on loading pet food with UUID '%s'", petFood.UUID)
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	foodUuid := ctx.Params.ByName("uuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting food UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	_, err = r.FoodHandler.Get(ctx, user.UID, foodUuid)
+	if err != nil {
+		errorMsg := fmt.Sprintf("error on loading food with UUID '%s'", foodUuid)
 		log.Error(errorMsg)
 		ctx.JSON(http.StatusNotFound, gin.H{"Message": errorMsg})
 		return
 	}
 
-	pets, err := r.PetRepository.UpdatePetFood(
-		ctx,
-		user.UID,
-		petFood.UUID.String(),
-		func(context context.Context, firestorePetFood *repository.Food) (*repository.Food, error) {
-			if petFood.Name != "" && petFood.Name != firestorePetFood.Name {
-				firestorePetFood.Name = petFood.Name
-			}
-			if petFood.Dosage != 0 && petFood.Dosage != firestorePetFood.Dosage {
-				firestorePetFood.Dosage = petFood.Dosage
-			}
-			if petFood.Unit != "" && petFood.Unit != firestorePetFood.Unit {
-				firestorePetFood.Unit = petFood.Unit
-			}
-			if petFood.Stock != 0 && petFood.Stock != firestorePetFood.Stock {
-				firestorePetFood.Stock = petFood.Stock
-			}
-			if len(petFood.Frequencies) != 0 && !reflect.DeepEqual(petFood.Frequencies, firestorePetFood.Frequencies) {
-				firestorePetFood.Frequencies = petFood.Frequencies
-			}
-
-			return firestorePetFood, nil
-		},
-	)
+	pets, err := r.FoodHandler.Update(ctx, user.UID, foodUuid, food)
 	if err != nil {
-		wrappedError := errors.Wrap(err, "error on updating pet food")
+		wrappedError := errors.Wrap(err, "error on updating food")
 		log.Error(wrappedError)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
 		return
@@ -374,8 +412,30 @@ func (r Router) DeletePet(ctx *gin.Context) {
 		return
 	}
 
-	petUUID := ctx.Params.ByName("uuid")
-	pets, err := r.PetRepository.DeletePet(ctx, user.UID, petUUID)
+	petUuid := ctx.Params.ByName("uuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting food UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	pets, err := r.PetHandler.Delete(ctx, user.UID, petUuid)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -730,7 +790,7 @@ func (r Router) StartRouter(port string) {
 
 			pets.GET("/:uuid", r.GetPet)
 
-			pets.PUT("/", r.UpdatePet)
+			pets.PUT("/:uuid", r.UpdatePet)
 
 			pets.DELETE("/:uuid", r.DeletePet)
 
@@ -742,7 +802,7 @@ func (r Router) StartRouter(port string) {
 
 				medicines.GET("/:uuid", r.GetMedicine)
 
-				medicines.PUT("/", r.UpdatePetMedicine)
+				medicines.PUT("/:uuid", r.UpdatePetMedicine)
 
 				medicines.DELETE("/:uuid", r.DeletePetMedicine)
 			}
@@ -755,7 +815,7 @@ func (r Router) StartRouter(port string) {
 
 				foods.GET("/:uuid", r.GetPetFood)
 
-				foods.PUT("/", r.UpdatePetFood)
+				foods.PUT("/:uuid", r.UpdatePetFood)
 
 				foods.DELETE("/:uuid", r.DeletePetFood)
 			}
@@ -778,8 +838,6 @@ func (r Router) StartRouter(port string) {
 		todos := v1.Group("/todos")
 		{
 			todos.GET("/", r.GetToDos)
-
-			todos.POST("/generate", r.GenerateToDos)
 		}
 	}
 
