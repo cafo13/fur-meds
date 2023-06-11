@@ -1,4 +1,4 @@
-module github.com/cafo13/fur-meds/backend/pets-api
+module github.com/cafo13/fur-meds/backend
 
 go 1.20
 

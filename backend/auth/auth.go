@@ -11,10 +11,26 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type User struct {
+	UID   string
+	Email string
+}
+
+type ctxKey int
+
+const (
+	userContextKey ctxKey = iota
+)
+
+var (
+	ErrNoUserInContext = errors.New("auth error: no user in context")
+)
+
 type AuthMiddleware interface {
 	Middleware() gin.HandlerFunc
 	GetUserUidByMail(ctx *gin.Context, userMail string) (string, error)
 	GetUserByUid(ctx *gin.Context, userUid string) (*auth.UserRecord, error)
+	UserFromCtx(ctx *gin.Context) (User, error)
 }
 
 type FirebaseAuthMiddleware struct {
@@ -73,32 +89,7 @@ func (a FirebaseAuthMiddleware) GetUserByUid(ctx *gin.Context, userUid string) (
 	return user, nil
 }
 
-func (a FirebaseAuthMiddleware) tokenFromHeader(r *http.Request) string {
-	headerValue := r.Header.Get("Authorization")
-
-	if len(headerValue) > 7 && strings.ToLower(headerValue[0:6]) == "bearer" {
-		return headerValue[7:]
-	}
-
-	return ""
-}
-
-type User struct {
-	UID   string
-	Email string
-}
-
-type ctxKey int
-
-const (
-	userContextKey ctxKey = iota
-)
-
-var (
-	ErrNoUserInContext = errors.New("auth error: no user in context")
-)
-
-func UserFromCtx(ctx *gin.Context) (User, error) {
+func (a FirebaseAuthMiddleware) UserFromCtx(ctx *gin.Context) (User, error) {
 	user, ok := ctx.Get("user")
 	log.Infof("got user %+v from context value 'user'", user)
 
@@ -121,4 +112,14 @@ func UserFromCtx(ctx *gin.Context) (User, error) {
 	}
 
 	return User{}, ErrNoUserInContext
+}
+
+func (a FirebaseAuthMiddleware) tokenFromHeader(r *http.Request) string {
+	headerValue := r.Header.Get("Authorization")
+
+	if len(headerValue) > 7 && strings.ToLower(headerValue[0:6]) == "bearer" {
+		return headerValue[7:]
+	}
+
+	return ""
 }

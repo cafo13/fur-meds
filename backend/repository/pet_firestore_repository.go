@@ -9,31 +9,28 @@ import (
 	"github.com/pkg/errors"
 )
 
-type PetsFirestoreRepository struct {
+type NoAccessToPetError struct {
+	UserUid string
+	PetUuid string
+}
+
+func (e *NoAccessToPetError) Error() string {
+	return fmt.Sprintf("user '%s' has no access to pet '%s'", e.UserUid, e.PetUuid)
+}
+
+type PetFirestoreRepository struct {
 	firestoreClient *firestore.Client
 }
 
-func NewPetsFirestoreRepository(firestoreClient *firestore.Client) PetsRepository {
-	return PetsFirestoreRepository{firestoreClient: firestoreClient}
+func NewPetFirestoreRepository(firestoreClient *firestore.Client) PetRepository {
+	return PetFirestoreRepository{firestoreClient: firestoreClient}
 }
 
-func (r PetsFirestoreRepository) petsCollection() *firestore.CollectionRef {
+func (r PetFirestoreRepository) petsCollection() *firestore.CollectionRef {
 	return r.firestoreClient.Collection("pets")
 }
 
-func (r PetsFirestoreRepository) medicinesCollection() *firestore.CollectionRef {
-	return r.firestoreClient.Collection("medicines")
-}
-
-func (r PetsFirestoreRepository) foodsCollection() *firestore.CollectionRef {
-	return r.firestoreClient.Collection("foods")
-}
-
-func (r PetsFirestoreRepository) todosCollection() *firestore.CollectionRef {
-	return r.firestoreClient.Collection("todos")
-}
-
-func (r PetsFirestoreRepository) AddPet(ctx context.Context, userUid string, pet *Pet) ([]*Pet, error) {
+func (r PetFirestoreRepository) AddPet(ctx context.Context, userUid string, pet *Pet) ([]*Pet, error) {
 	collection := r.petsCollection()
 
 	petUUID := uuid.New()
@@ -55,15 +52,7 @@ func (r PetsFirestoreRepository) AddPet(ctx context.Context, userUid string, pet
 	return userPets, nil
 }
 
-func (r PetsFirestoreRepository) AddPetMedicine(ctx context.Context, userUid string, petMedicine *PetMedicine) ([]*PetMedicine, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) AddPetFood(ctx context.Context, userUid string, petFood *PetFood) ([]*PetFood, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) GetPet(ctx context.Context, userUid string, petUUID string) (*Pet, error) {
+func (r PetFirestoreRepository) GetPet(ctx context.Context, userUid string, petUUID string) (*Pet, error) {
 	firestorePet, err := r.petsCollection().Doc(petUUID).Get(ctx)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get pet with UUID '%s'", petUUID)
@@ -85,21 +74,16 @@ func (r PetsFirestoreRepository) GetPet(ctx context.Context, userUid string, pet
 	}
 
 	if !userIsOwnerOfPet && !userIsSharedUserOfPet {
-		return nil, fmt.Errorf("user '%s' has no access to pet '%s'", userUid, petUUID)
+		return nil, &NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: petUUID,
+		}
 	}
 
 	return pet, nil
 }
 
-func (r PetsFirestoreRepository) GetPetMedicine(ctx context.Context, userUid string, petMedicineUUID string) (*Pet, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) GetPetFood(ctx context.Context, userUid string, petFoodUUID string) (*Pet, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) GetPets(ctx context.Context, userUid string) ([]*Pet, error) {
+func (r PetFirestoreRepository) GetPets(ctx context.Context, userUid string) ([]*Pet, error) {
 	allUserPetDocuments, err := r.petsCollection().Where("userUid", "==", userUid).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get all pets for user")
@@ -139,19 +123,7 @@ func (r PetsFirestoreRepository) GetPets(ctx context.Context, userUid string) ([
 	return allPets, nil
 }
 
-func (r PetsFirestoreRepository) GetPetMedicines(ctx context.Context, userUid string, petUuid string) ([]*PetMedicine, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) GetPetFoods(ctx context.Context, userUid string, petUuid string) ([]*PetFood, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) GetToDos(ctx context.Context, userUid string) ([]*ToDo, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) GetOpenSharedPets(ctx context.Context, userUid string) ([]*Pet, error) {
+func (r PetFirestoreRepository) GetOpenSharedPets(ctx context.Context, userUid string) ([]*Pet, error) {
 	allOpenSharedPetDocumentsForUser, err := r.petsCollection().
 		Where(
 			"sharedWithUsers",
@@ -178,11 +150,7 @@ func (r PetsFirestoreRepository) GetOpenSharedPets(ctx context.Context, userUid 
 	return resultPets, nil
 }
 
-func (r PetsFirestoreRepository) GenerateToDos(ctx context.Context, userUid string) error {
-	return nil
-}
-
-func (r PetsFirestoreRepository) UpdatePet(ctx context.Context, userUid string, petUUID string, updateFn func(ctx context.Context, pet *Pet) (*Pet, error)) ([]*Pet, error) {
+func (r PetFirestoreRepository) UpdatePet(ctx context.Context, userUid string, petUUID string, updateFn func(ctx context.Context, pet *Pet) (*Pet, error)) ([]*Pet, error) {
 	petsCollection := r.petsCollection()
 
 	err := r.firestoreClient.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
@@ -208,7 +176,10 @@ func (r PetsFirestoreRepository) UpdatePet(ctx context.Context, userUid string, 
 		}
 
 		if !userIsOwnerOfPet && !userIsSharedUserOfPet {
-			return fmt.Errorf("user '%s' has no access to pet '%s'", userUid, petUUID)
+			return &NoAccessToPetError{
+				UserUid: userUid,
+				PetUuid: petUUID,
+			}
 		}
 
 		updatedPet, err := updateFn(ctx, pet)
@@ -230,15 +201,7 @@ func (r PetsFirestoreRepository) UpdatePet(ctx context.Context, userUid string, 
 	return userPets, nil
 }
 
-func (r PetsFirestoreRepository) UpdatePetMedicine(ctx context.Context, userUid string, medicineUUID string, updateFn func(ctx context.Context, petMedicine *PetMedicine) (*PetMedicine, error)) ([]*PetMedicine, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) UpdatePetFood(ctx context.Context, userUid string, foodUUID string, updateFn func(ctx context.Context, petFood *PetFood) (*PetFood, error)) ([]*PetFood, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) DeletePet(ctx context.Context, userUid string, petUUID string) ([]*Pet, error) {
+func (r PetFirestoreRepository) DeletePet(ctx context.Context, userUid string, petUUID string) ([]*Pet, error) {
 	firestorePet, err := r.petsCollection().Doc(petUUID).Get(ctx)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to load pet with UUID '%s' before deletion", petUUID)
@@ -249,7 +212,10 @@ func (r PetsFirestoreRepository) DeletePet(ctx context.Context, userUid string, 
 		return nil, err
 	}
 	if pet.UserUID != userUid {
-		return nil, fmt.Errorf("user '%s' has no access to pet '%s', only the owner of a pet is allowed to delete it", userUid, petUUID)
+		return nil, &NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: petUUID,
+		}
 	}
 
 	_, err = r.petsCollection().Doc(petUUID).Delete(ctx)
@@ -265,15 +231,7 @@ func (r PetsFirestoreRepository) DeletePet(ctx context.Context, userUid string, 
 	return userPets, nil
 }
 
-func (r PetsFirestoreRepository) DeletePetMedicine(ctx context.Context, userUid string, medicineUUID string) ([]*PetMedicine, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) DeletePetFood(ctx context.Context, userUid string, foodUUID string) ([]*PetFood, error) {
-	return nil, nil
-}
-
-func (r PetsFirestoreRepository) unmarshalPet(doc *firestore.DocumentSnapshot) (*Pet, error) {
+func (r PetFirestoreRepository) unmarshalPet(doc *firestore.DocumentSnapshot) (*Pet, error) {
 	PetModel := Pet{}
 	err := doc.DataTo(&PetModel)
 	if err != nil {

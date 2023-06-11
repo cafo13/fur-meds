@@ -13,7 +13,7 @@
                 "GCP_PROJECT": "fur-meds-project",
                 "API_PORT": "8080"
             },
-            "program": "${workspaceFolder}/backend/pets-api",
+            "program": "${workspaceFolder}/backend",
             "args": []
         }
     ]

@@ -4,8 +4,8 @@ module "cloud_run_fur_meds_pets_api" {
   project  = var.project
   location = var.region
 
-  name  = "pets-api"
-  image = "europe-west4-docker.pkg.dev/fur-meds-project/fur-meds/pets-api:${var.app_version}"
+  name  = "furmeds-api"
+  image = "europe-west4-docker.pkg.dev/fur-meds-project/fur-meds/furmeds-api:${var.app_version}"
 
   envs = [
     {
