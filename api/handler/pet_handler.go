@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 
 	"github.com/cafo13/fur-meds/api/repository"
@@ -10,10 +11,14 @@ import (
 
 type PetHandler interface {
 	Create(ctx context.Context, userUid string, pet *repository.Pet) ([]*repository.Pet, error)
+	Delete(ctx context.Context, userUid string, petUuid string) ([]*repository.Pet, error)
 	Get(ctx context.Context, userUid string, petUuid string) (*repository.Pet, error)
 	GetAllForUser(ctx context.Context, userUid string) ([]*repository.Pet, error)
 	Update(ctx context.Context, userUid string, petUUID string, pet *repository.Pet) ([]*repository.Pet, error)
 	UserHasAccess(ctx context.Context, userUid string, petUuid string) (bool, error)
+	CreatePetShareInvite(ctx context.Context, userUid string, petUuid string, userUidToSharePetWith string) ([]*repository.Pet, error)
+	AnswerPetShareInvite(ctx context.Context, userUid string, petUuid string, petShareInviteAnswer repository.PetShareAnswer) ([]*repository.Pet, error)
+	GetOpenSharedPets(ctx context.Context, userUid string) ([]*repository.Pet, error)
 }
 
 type PetHandle struct {
@@ -27,6 +32,15 @@ func NewPetHandler(petRepository repository.PetRepository, todoChannel chan stri
 
 func (h PetHandle) Create(ctx context.Context, userUid string, pet *repository.Pet) ([]*repository.Pet, error) {
 	pets, err := h.petRepository.AddPet(ctx, userUid, pet)
+	if err != nil {
+		return nil, err
+	}
+
+	return pets, nil
+}
+
+func (h PetHandle) Delete(ctx context.Context, userUid string, petUuid string) ([]*repository.Pet, error) {
+	pets, err := h.petRepository.DeletePet(ctx, userUid, petUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -99,4 +113,59 @@ func (h PetHandle) UserHasAccess(ctx context.Context, userUid string, petUuid st
 	}
 
 	return false, errors.New("something went wrong on checking if user has access to pet")
+}
+
+func (h PetHandle) CreatePetShareInvite(ctx context.Context, userUid string, petUuid string, userUidToSharePetWith string) ([]*repository.Pet, error) {
+	return h.petRepository.UpdatePet(
+		ctx,
+		userUid,
+		petUuid,
+		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
+			if firestorePet.SharedWithUsers == nil {
+				firestorePet.SharedWithUsers = []repository.PetShares{}
+			}
+			for _, sharedUser := range firestorePet.SharedWithUsers {
+				if sharedUser.UserUid == userUidToSharePetWith {
+					return nil, fmt.Errorf("user '%s' is already invited to accept share for pet '%s'", userUid, petUuid)
+				}
+			}
+
+			firestorePet.SharedWithUsers = append(firestorePet.SharedWithUsers, repository.PetShares{UserUid: userUidToSharePetWith, ShareAccepted: false})
+
+			return firestorePet, nil
+		},
+	)
+}
+
+func (h PetHandle) AnswerPetShareInvite(ctx context.Context, userUid string, petUuid string, petShareInviteAnswer repository.PetShareAnswer) ([]*repository.Pet, error) {
+	return h.petRepository.UpdatePet(
+		ctx,
+		userUid,
+		petUuid,
+		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
+			noInviteFoundError := fmt.Errorf("no open invite exists for user '%s' at pet '%s'", userUid, petUuid)
+			if firestorePet.SharedWithUsers == nil {
+				return nil, noInviteFoundError
+			}
+
+			for index, sharedUser := range firestorePet.SharedWithUsers {
+				if sharedUser.UserUid == userUid {
+					if petShareInviteAnswer == repository.PET_SHARE_ANSWER_ACCEPT {
+						firestorePet.SharedWithUsers[index].ShareAccepted = true
+					}
+					if petShareInviteAnswer == repository.PET_SHARE_ANSWER_DENY {
+						firestorePet.SharedWithUsers = append(firestorePet.SharedWithUsers[:index], firestorePet.SharedWithUsers[index+1:]...)
+					}
+
+					return firestorePet, nil
+				}
+			}
+
+			return nil, noInviteFoundError
+		},
+	)
+}
+
+func (h PetHandle) GetOpenSharedPets(ctx context.Context, userUid string) ([]*repository.Pet, error) {
+	return h.petRepository.GetOpenSharedPets(ctx, userUid)
 }

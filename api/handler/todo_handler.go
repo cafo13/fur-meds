@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"context"
+
 	"github.com/cafo13/fur-meds/api/repository"
-	"github.com/google/uuid"
 )
 
 type TodoHandler interface {
-	Get(todoUuid uuid.UUID) *repository.ToDo
+	GetAllForUser(ctx context.Context, userUid string) ([]*repository.ToDo, error)
 }
 
 type TodoHandle struct {
@@ -18,6 +19,6 @@ func NewTodoHandler(todoRepository repository.TodoRepository, todoChannel chan s
 	return TodoHandle{todoRepository, todoChannel}
 }
 
-func (h TodoHandle) Get(todoUuid uuid.UUID) *repository.ToDo {
-	return &repository.ToDo{}
+func (h TodoHandle) GetAllForUser(ctx context.Context, userUid string) ([]*repository.ToDo, error) {
+	return nil, nil
 }

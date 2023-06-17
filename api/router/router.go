@@ -1,7 +1,6 @@
 package router
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -54,6 +53,50 @@ func (r Router) GetPets(ctx *gin.Context) {
 	}
 
 	pets, err := r.PetHandler.GetAllForUser(ctx, user.UID)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, pets)
+		return
+	}
+}
+
+func (r Router) GetPet(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "GET")
+
+	user, err := r.AuthMiddleware.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	pets, err := r.PetHandler.Get(ctx, user.UID, petUuid)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -414,7 +457,7 @@ func (r Router) DeletePet(ctx *gin.Context) {
 
 	petUuid := ctx.Params.ByName("uuid")
 	if len(petUuid) == 0 {
-		err := errors.New("error on getting food UUID from request URL")
+		err := errors.New("error on getting pet UUID from request URL")
 		log.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
@@ -456,8 +499,31 @@ func (r Router) DeletePetMedicine(ctx *gin.Context) {
 		return
 	}
 
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
 	petMedicineUUID := ctx.Params.ByName("uuid")
-	pets, err := r.PetRepository.DeletePetMedicine(ctx, user.UID, petMedicineUUID)
+	pets, err := r.MedicineHandler.Delete(ctx, user.UID, petMedicineUUID)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -478,8 +544,31 @@ func (r Router) DeletePetFood(ctx *gin.Context) {
 		return
 	}
 
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
 	petFoodUUID := ctx.Params.ByName("uuid")
-	pets, err := r.PetRepository.DeletePetFood(ctx, user.UID, petFoodUUID)
+	pets, err := r.FoodHandler.Delete(ctx, user.UID, petFoodUUID)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -509,7 +598,30 @@ func (r Router) InviteToSharePet(ctx *gin.Context) {
 		return
 	}
 
-	pet, err := r.PetRepository.GetPet(ctx, user.UID, sharePetInviteRequest.PetUUID.String())
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request body")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	pet, err := r.PetHandler.Get(ctx, user.UID, petUuid)
 	if err != nil {
 		errorMsg := fmt.Sprintf("error on loading pet with UUID '%s'", pet.UUID)
 		log.Error(errorMsg)
@@ -525,25 +637,8 @@ func (r Router) InviteToSharePet(ctx *gin.Context) {
 		return
 	}
 
-	pets, err := r.PetRepository.UpdatePet(
-		ctx,
-		user.UID,
-		pet.UUID.String(),
-		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
-			if firestorePet.SharedWithUsers == nil {
-				firestorePet.SharedWithUsers = []repository.PetShares{}
-			}
-			for _, sharedUser := range firestorePet.SharedWithUsers {
-				if sharedUser.UserUid == userUidToSharePetWith {
-					return nil, fmt.Errorf("user '%s' is already invited to accept share for pet '%s'", sharePetInviteRequest.UserMailToInvite, pet.Name)
-				}
-			}
+	pets, err := r.PetHandler.CreatePetShareInvite(ctx, user.UID, petUuid, userUidToSharePetWith)
 
-			firestorePet.SharedWithUsers = append(firestorePet.SharedWithUsers, repository.PetShares{UserUid: userUidToSharePetWith, ShareAccepted: false})
-
-			return firestorePet, nil
-		},
-	)
 	if err != nil {
 		wrappedError := errors.Wrap(err, "error inviting user to accept share of pet")
 		log.Error(wrappedError)
@@ -555,13 +650,13 @@ func (r Router) InviteToSharePet(ctx *gin.Context) {
 	}
 }
 
-func (r Router) AcceptPetShare(ctx *gin.Context) {
+func (r Router) AnswerPetShareInvite(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "POST")
 
-	acceptPetShareRequest := &repository.AnswerPetShareRequest{}
-	err := ctx.BindJSON(&acceptPetShareRequest)
+	petShareRequestAnswer := &repository.AnswerPetShareRequest{}
+	err := ctx.BindJSON(&petShareRequestAnswer)
 	if err != nil {
-		wrappedError := errors.Wrap(err, "error on getting accept pet share request from json body")
+		wrappedError := errors.Wrap(err, "error on getting pet share request answer from json body")
 		log.Error(wrappedError)
 		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
 		return
@@ -574,78 +669,18 @@ func (r Router) AcceptPetShare(ctx *gin.Context) {
 		return
 	}
 
-	pets, err := r.PetRepository.UpdatePet(
-		ctx,
-		user.UID,
-		acceptPetShareRequest.PetUUID.String(),
-		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
-			noInviteFoundError := fmt.Errorf("no open invite exists for user '%s' at pet '%s'", user.UID, acceptPetShareRequest.PetUUID.String())
-			if firestorePet.SharedWithUsers == nil {
-				return nil, noInviteFoundError
-			}
-
-			for index, sharedUser := range firestorePet.SharedWithUsers {
-				if sharedUser.UserUid == user.UID {
-					firestorePet.SharedWithUsers[index].ShareAccepted = true
-					return firestorePet, nil
-				}
-			}
-
-			return nil, noInviteFoundError
-		},
-	)
-	if err != nil {
-		wrappedError := errors.Wrap(err, "error accepting invite to share of pet")
-		log.Error(wrappedError)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
-		return
-	} else {
-		ctx.IndentedJSON(http.StatusOK, pets)
-		return
-	}
-}
-
-func (r Router) DenyPetShare(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Methods", "POST")
-
-	denyPetShareRequest := &repository.AnswerPetShareRequest{}
-	err := ctx.BindJSON(&denyPetShareRequest)
-	if err != nil {
-		wrappedError := errors.Wrap(err, "error on getting deny pet share request from json body")
-		log.Error(wrappedError)
-		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
-		return
-	}
-
-	user, err := r.AuthMiddleware.UserFromCtx(ctx)
-	if err != nil {
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request body")
 		log.Error(err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
 
-	pets, err := r.PetRepository.UpdatePet(
-		ctx,
-		user.UID,
-		denyPetShareRequest.PetUUID.String(),
-		func(context context.Context, firestorePet *repository.Pet) (*repository.Pet, error) {
-			noInviteFoundError := fmt.Errorf("no open invite exists for user '%s' at pet '%s'", user.UID, denyPetShareRequest.PetUUID.String())
-			if firestorePet.SharedWithUsers == nil {
-				return nil, noInviteFoundError
-			}
+	pets, err := r.PetHandler.AnswerPetShareInvite(ctx, user.UID, petUuid, petShareRequestAnswer.Answer)
 
-			for index, sharedUser := range firestorePet.SharedWithUsers {
-				if sharedUser.UserUid == user.UID {
-					firestorePet.SharedWithUsers = append(firestorePet.SharedWithUsers[:index], firestorePet.SharedWithUsers[index+1:]...)
-					return firestorePet, nil
-				}
-			}
-
-			return nil, noInviteFoundError
-		},
-	)
 	if err != nil {
-		wrappedError := errors.Wrap(err, "error accepting invite to share of pet")
+		wrappedError := errors.Wrap(err, "error answering pet share invite")
 		log.Error(wrappedError)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": wrappedError})
 		return
@@ -665,7 +700,30 @@ func (r Router) GetPetShareInvites(ctx *gin.Context) {
 		return
 	}
 
-	openSharedPets, err := r.PetRepository.GetOpenSharedPets(ctx, user.UID)
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request body")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	openSharedPets, err := r.PetHandler.GetOpenSharedPets(ctx, user.UID)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -701,13 +759,80 @@ func (r Router) GetPetMedicines(ctx *gin.Context) {
 	}
 
 	petUuid := ctx.Params.ByName("petUuid")
-	petMedicines, err := r.PetRepository.GetPetMedicines(ctx, user.UID, petUuid)
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request body")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	petMedicines, err := r.MedicineHandler.GetAllForPet(ctx, user.UID, petUuid)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		return
 	} else {
 		ctx.IndentedJSON(http.StatusOK, petMedicines)
+		return
+	}
+}
+
+func (r Router) GetPetMedicine(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "GET")
+
+	user, err := r.AuthMiddleware.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	medicineUuid := ctx.Params.ByName("uuid")
+	medicine, err := r.MedicineHandler.Get(ctx, user.UID, medicineUuid)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, medicine)
 		return
 	}
 }
@@ -723,13 +848,80 @@ func (r Router) GetPetFoods(ctx *gin.Context) {
 	}
 
 	petUuid := ctx.Params.ByName("petUuid")
-	petFoods, err := r.PetRepository.GetPetFoods(ctx, user.UID, petUuid)
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request body")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	petFoods, err := r.FoodHandler.GetAllForPet(ctx, user.UID, petUuid)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		return
 	} else {
 		ctx.IndentedJSON(http.StatusOK, petFoods)
+		return
+	}
+}
+
+func (r Router) GetPetFood(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "GET")
+
+	user, err := r.AuthMiddleware.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	petUuid := ctx.Params.ByName("petUuid")
+	if len(petUuid) == 0 {
+		err := errors.New("error on getting pet UUID from request URL")
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	hasAccess, err := r.PetHandler.UserHasAccess(ctx, user.UID, petUuid)
+	if err != nil {
+		err := errors.New("error on checking if user has access to pet")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	if !hasAccess {
+		err := petAccessError
+		log.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"Error": err.Error()})
+		return
+	}
+
+	foodUuid := ctx.Params.ByName("uuid")
+	food, err := r.FoodHandler.Get(ctx, user.UID, foodUuid)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, food)
 		return
 	}
 }
@@ -744,34 +936,13 @@ func (r Router) GetToDos(ctx *gin.Context) {
 		return
 	}
 
-	todos, err := r.PetRepository.GetToDos(ctx, user.UID)
+	todos, err := r.TodoHandler.GetAllForUser(ctx, user.UID)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		return
 	} else {
 		ctx.IndentedJSON(http.StatusOK, todos)
-		return
-	}
-}
-
-func (r Router) GenerateToDos(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Methods", "POST")
-
-	user, err := r.AuthMiddleware.UserFromCtx(ctx)
-	if err != nil {
-		log.Error(err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
-		return
-	}
-
-	err = r.PetRepository.GenerateToDos(ctx, user.UID)
-	if err != nil {
-		log.Error(err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
-		return
-	} else {
-		ctx.JSON(http.StatusOK, gin.H{"Message": "successfully generated todos"})
 		return
 	}
 }
@@ -800,7 +971,7 @@ func (r Router) StartRouter(port string) {
 
 				medicines.GET("/", r.GetPetMedicines)
 
-				medicines.GET("/:uuid", r.GetMedicine)
+				medicines.GET("/:uuid", r.GetPetMedicine)
 
 				medicines.PUT("/:uuid", r.UpdatePetMedicine)
 
@@ -828,9 +999,7 @@ func (r Router) StartRouter(port string) {
 
 					invites.GET("/", r.GetPetShareInvites)
 
-					invites.POST("/accept", r.AcceptPetShare)
-
-					invites.POST("/deny", r.DenyPetShare)
+					invites.POST("/answer", r.AnswerPetShareInvite)
 				}
 			}
 		}

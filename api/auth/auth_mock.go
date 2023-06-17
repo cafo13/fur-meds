@@ -61,3 +61,7 @@ func (a MockAuthMiddleware) GetUserUidByMail(ctx *gin.Context, userMail string) 
 func (a MockAuthMiddleware) GetUserByUid(ctx *gin.Context, userMail string) (*auth.UserRecord, error) {
 	return nil, nil
 }
+
+func (a MockAuthMiddleware) UserFromCtx(ctx *gin.Context) (User, error) {
+	return User{}, nil
+}

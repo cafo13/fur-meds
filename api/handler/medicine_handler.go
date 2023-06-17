@@ -10,7 +10,9 @@ import (
 type MedicineHandler interface {
 	Create(ctx context.Context, userUid string, petUuid string, medicine *repository.Medicine) ([]*repository.Medicine, error)
 	Get(ctx context.Context, userUid string, medicineUuid string) (*repository.Medicine, error)
-	Update(ctx context.Context, userUid string, medicineUuid string, pet *repository.Medicine) ([]*repository.Medicine, error)
+	Update(ctx context.Context, userUid string, medicineUuid string, medicine *repository.Medicine) ([]*repository.Medicine, error)
+	Delete(ctx context.Context, userUid string, medicineUuid string) ([]*repository.Medicine, error)
+	GetAllForPet(ctx context.Context, userUid string, petUuid string) ([]*repository.Medicine, error)
 }
 
 type MedicineHandle struct {
@@ -69,4 +71,12 @@ func (h MedicineHandle) Update(ctx context.Context, userUid string, medicineUuid
 	}
 
 	return medicines, nil
+}
+
+func (h MedicineHandle) Delete(ctx context.Context, userUid string, medicineUuid string) ([]*repository.Medicine, error) {
+	return h.medicineRepository.DeleteMedicine(ctx, userUid, medicineUuid)
+}
+
+func (h MedicineHandle) GetAllForPet(ctx context.Context, userUid string, petUuid string) ([]*repository.Medicine, error) {
+	return h.medicineRepository.GetMedicines(ctx, userUid, petUuid)
 }

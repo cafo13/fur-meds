@@ -10,7 +10,9 @@ import (
 type FoodHandler interface {
 	Create(ctx context.Context, userUid string, petUuid string, food *repository.Food) ([]*repository.Food, error)
 	Get(ctx context.Context, userUid string, foodUuid string) (*repository.Food, error)
-	Update(ctx context.Context, userUid string, foodUuid string, pet *repository.Food) ([]*repository.Food, error)
+	Update(ctx context.Context, userUid string, foodUuid string, food *repository.Food) ([]*repository.Food, error)
+	Delete(ctx context.Context, userUid string, foodUuid string) ([]*repository.Food, error)
+	GetAllForPet(ctx context.Context, userUid string, petUuid string) ([]*repository.Food, error)
 }
 
 type FoodHandle struct {
@@ -69,4 +71,12 @@ func (h FoodHandle) Update(ctx context.Context, userUid string, foodUuid string,
 	}
 
 	return foods, nil
+}
+
+func (h FoodHandle) Delete(ctx context.Context, userUid string, foodUuid string) ([]*repository.Food, error) {
+	return h.foodRepository.DeleteFood(ctx, userUid, foodUuid)
+}
+
+func (h FoodHandle) GetAllForPet(ctx context.Context, userUid string, petUuid string) ([]*repository.Food, error) {
+	return h.foodRepository.GetFoods(ctx, userUid, petUuid)
 }

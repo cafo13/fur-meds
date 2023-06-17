@@ -15,12 +15,18 @@ const (
 )
 
 type SharePetInviteRequest struct {
-	PetUUID          uuid.UUID `json:"petUuid"`
-	UserMailToInvite string    `json:"userMailToInvite"`
+	UserMailToInvite string `json:"userMailToInvite"`
 }
 
+type PetShareAnswer string
+
+const (
+	PET_SHARE_ANSWER_ACCEPT PetShareAnswer = "Accept"
+	PET_SHARE_ANSWER_DENY   PetShareAnswer = "Deny"
+)
+
 type AnswerPetShareRequest struct {
-	PetUUID uuid.UUID `json:"petUuid"`
+	Answer PetShareAnswer
 }
 
 type PetShares struct {
