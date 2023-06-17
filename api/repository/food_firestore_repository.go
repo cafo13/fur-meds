@@ -75,8 +75,23 @@ func (r FoodFirestoreRepository) GetFood(ctx context.Context, userUid string, fo
 }
 
 func (r FoodFirestoreRepository) GetFoods(ctx context.Context, userUid string, petUuid string) ([]*Food, error) {
-	return nil, nil
+	allPetFoodDocuments, err := r.foodsCollection().Where("petUuid", "==", petUuid).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get all foods for pet %s", petUuid)
+	}
+
+	var allPetFoods []*Food
+	for _, food := range allPetFoodDocuments {
+		unmarshaledFood, err := r.unmarshalFood(food)
+		if err != nil {
+			return nil, err
+		}
+		allPetFoods = append(allPetFoods, unmarshaledFood)
+	}
+
+	return allPetFoods, nil
 }
+
 func (r FoodFirestoreRepository) UpdateFood(ctx context.Context, userUid string, foodUUID string, updateFn func(ctx context.Context, food *Food) (*Food, error)) ([]*Food, error) {
 	return nil, nil
 }
