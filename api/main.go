@@ -74,10 +74,11 @@ func main() {
 	corsMiddleware := cors.NewAllowingCORSMiddleware()
 	todoChannel := make(chan string)
 	firestoreClient := setupFirestoreClient(context.Background(), gcpProject)
+	petRepository := repository.NewPetFirestoreRepository(firestoreClient)
 	router := setupRouter(authMiddleware, &corsMiddleware, &router.HandlerSet{
-		PetHandler:      handler.NewPetHandler(repository.NewPetFirestoreRepository(firestoreClient), todoChannel),
-		MedicineHandler: handler.NewMedicineHandler(repository.NewMedicineFirestoreRepository(firestoreClient)),
-		FoodHandler:     handler.NewFoodHandler(repository.NewFoodFirestoreRepository(firestoreClient)),
+		PetHandler:      handler.NewPetHandler(petRepository, todoChannel),
+		MedicineHandler: handler.NewMedicineHandler(repository.NewMedicineFirestoreRepository(firestoreClient, petRepository)),
+		FoodHandler:     handler.NewFoodHandler(repository.NewFoodFirestoreRepository(firestoreClient, petRepository)),
 		TodoHandler:     handler.NewTodoHandler(repository.NewTodoFirestoreRepository(firestoreClient), todoChannel),
 	})
 

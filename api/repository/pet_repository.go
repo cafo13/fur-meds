@@ -58,4 +58,5 @@ type PetRepository interface {
 	GetOpenSharedPets(ctx context.Context, userUid string) ([]*Pet, error)
 	UpdatePet(ctx context.Context, userUid string, petUUID string, updateFn func(ctx context.Context, pet *Pet) (*Pet, error)) ([]*Pet, error)
 	DeletePet(ctx context.Context, userUid string, petUUID string) ([]*Pet, error)
+	UserHasAccessToPet(ctx context.Context, userUid string, petUuid string) (bool, error)
 }

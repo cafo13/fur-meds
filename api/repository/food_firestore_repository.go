@@ -4,14 +4,17 @@ import (
 	"context"
 
 	"cloud.google.com/go/firestore"
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 type FoodFirestoreRepository struct {
 	firestoreClient *firestore.Client
+	petRepository   PetRepository
 }
 
-func NewFoodFirestoreRepository(firestoreClient *firestore.Client) FoodRepository {
-	return FoodFirestoreRepository{firestoreClient: firestoreClient}
+func NewFoodFirestoreRepository(firestoreClient *firestore.Client, petRepository PetRepository) FoodRepository {
+	return FoodFirestoreRepository{firestoreClient, petRepository}
 }
 
 func (r FoodFirestoreRepository) foodsCollection() *firestore.CollectionRef {
@@ -19,12 +22,58 @@ func (r FoodFirestoreRepository) foodsCollection() *firestore.CollectionRef {
 }
 
 func (r FoodFirestoreRepository) AddFood(ctx context.Context, userUid string, petUuid string, food *Food) ([]*Food, error) {
-	return nil, nil
+	collection := r.foodsCollection()
+
+	foodUUID := uuid.New()
+	food.UUID = foodUUID
+	food.UserUID = userUid
+	petUUID, err := uuid.Parse(petUuid)
+	if err != nil {
+		return nil, err
+	}
+	food.PetUUID = petUUID
+
+	err = r.firestoreClient.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		return tx.Create(collection.Doc(foodUUID.String()), food)
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to add food")
+	}
+
+	petFoods, err := r.GetFoods(ctx, userUid, petUuid)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get updated list of the pet's foods after new food was added")
+	}
+
+	return petFoods, nil
 }
 
 func (r FoodFirestoreRepository) GetFood(ctx context.Context, userUid string, foodUUID string) (*Food, error) {
-	return nil, nil
+	firestoreFood, err := r.foodsCollection().Doc(foodUUID).Get(ctx)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get pet food with UUID '%s'", foodUUID)
+	}
+
+	food, err := r.unmarshalFood(firestoreFood)
+	if err != nil {
+		return nil, err
+	}
+
+	hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, food.PetUUID.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if !hasAccess {
+		return nil, &NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: food.PetUUID.String(),
+		}
+	}
+
+	return food, nil
 }
+
 func (r FoodFirestoreRepository) GetFoods(ctx context.Context, userUid string, petUuid string) ([]*Food, error) {
 	return nil, nil
 }
@@ -33,5 +82,47 @@ func (r FoodFirestoreRepository) UpdateFood(ctx context.Context, userUid string,
 }
 
 func (r FoodFirestoreRepository) DeleteFood(ctx context.Context, userUid string, foodUUID string) ([]*Food, error) {
-	return nil, nil
+	firestoreFood, err := r.foodsCollection().Doc(foodUUID).Get(ctx)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to load food with UUID '%s' before deletion", foodUUID)
+	}
+
+	food, err := r.unmarshalFood(firestoreFood)
+	if err != nil {
+		return nil, err
+	}
+
+	hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, food.PetUUID.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if !hasAccess {
+		return nil, &NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: food.PetUUID.String(),
+		}
+	}
+
+	_, err = r.foodsCollection().Doc(foodUUID).Delete(ctx)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to delete food with UUID '%s'", foodUUID)
+	}
+
+	petFoods, err := r.GetFoods(ctx, userUid, food.PetUUID.String())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get updated list of the pet's foods after food was deleted")
+	}
+
+	return petFoods, nil
+}
+
+func (r FoodFirestoreRepository) unmarshalFood(doc *firestore.DocumentSnapshot) (*Food, error) {
+	FoodModel := Food{}
+	err := doc.DataTo(&FoodModel)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to unmarshal document to food")
+	}
+
+	return &FoodModel, nil
 }

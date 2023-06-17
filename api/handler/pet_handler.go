@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -99,20 +98,7 @@ func (h PetHandle) Update(ctx context.Context, userUid string, petUuid string, p
 }
 
 func (h PetHandle) UserHasAccess(ctx context.Context, userUid string, petUuid string) (bool, error) {
-	pet, err := h.petRepository.GetPet(ctx, userUid, petUuid)
-	if _, ok := err.(*repository.NoAccessToPetError); ok {
-		return false, nil
-	}
-
-	if err != nil {
-		return false, err
-	}
-
-	if pet != nil {
-		return true, nil
-	}
-
-	return false, errors.New("something went wrong on checking if user has access to pet")
+	return h.petRepository.UserHasAccessToPet(ctx, userUid, petUuid)
 }
 
 func (h PetHandle) CreatePetShareInvite(ctx context.Context, userUid string, petUuid string, userUidToSharePetWith string) ([]*repository.Pet, error) {

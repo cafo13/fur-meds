@@ -25,6 +25,7 @@ type MedicineFrequency struct {
 type Medicine struct {
 	UUID        uuid.UUID           `firestore:"uuid" json:"uuid"`
 	UserUID     string              `firestore:"userUid" json:"userUid"`
+	PetUUID     uuid.UUID           `firestore:"petUuid" json:"petUuid"`
 	Name        string              `firestore:"name" json:"name"`
 	Dosage      int                 `firestore:"dosage" json:"dosage"`
 	Unit        PetMedicineUnit     `firestore:"unit" json:"unit"`

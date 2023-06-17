@@ -23,6 +23,7 @@ type FoodFrequency struct {
 type Food struct {
 	UUID        uuid.UUID       `firestore:"uuid" json:"uuid"`
 	UserUID     string          `firestore:"userUid" json:"userUid"`
+	PetUUID     uuid.UUID       `firestore:"petUuid" json:"petUuid"`
 	Name        string          `firestore:"name" json:"name"`
 	Dosage      int             `firestore:"dosage" json:"dosage"`
 	Unit        FoodUnit        `firestore:"unit" json:"unit"`

@@ -231,6 +231,23 @@ func (r PetFirestoreRepository) DeletePet(ctx context.Context, userUid string, p
 	return userPets, nil
 }
 
+func (r PetFirestoreRepository) UserHasAccessToPet(ctx context.Context, userUid string, petUuid string) (bool, error) {
+	pet, err := r.GetPet(ctx, userUid, petUuid)
+	if _, ok := err.(*NoAccessToPetError); ok {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	if pet != nil {
+		return true, nil
+	}
+
+	return false, errors.New("something went wrong on checking if user has access to pet")
+}
+
 func (r PetFirestoreRepository) unmarshalPet(doc *firestore.DocumentSnapshot) (*Pet, error) {
 	PetModel := Pet{}
 	err := doc.DataTo(&PetModel)
