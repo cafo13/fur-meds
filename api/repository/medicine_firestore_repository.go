@@ -93,54 +93,51 @@ func (r MedicineFirestoreRepository) GetMedicines(ctx context.Context, userUid s
 }
 
 func (r MedicineFirestoreRepository) UpdateMedicine(ctx context.Context, userUid string, medicineUUID string, updateFn func(ctx context.Context, medicine *Medicine) (*Medicine, error)) ([]*Medicine, error) {
+	var petUuid string
 	medicinesCollection := r.medicinesCollection()
 
 	err := r.firestoreClient.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		documentRef := medicinesCollection.Doc(petUUID)
+		documentRef := medicinesCollection.Doc(medicineUUID)
 
-		firestorePet, err := tx.Get(documentRef)
+		firestoreMedicine, err := tx.Get(documentRef)
 		if err != nil {
-			return errors.Wrap(err, "unable to get pet document for update")
+			return errors.Wrap(err, "unable to medicine document for update")
 		}
 
-		pet, err := r.unmarshalPet(firestorePet)
+		medicine, err := r.unmarshalMedicine(firestoreMedicine)
 		if err != nil {
 			return err
 		}
-		userIsOwnerOfPet := pet.UserUID == userUid
-		userIsSharedUserOfPet := false
-		if pet.SharedWithUsers != nil {
-			for _, sharedUser := range pet.SharedWithUsers {
-				if sharedUser.UserUid == userUid {
-					userIsSharedUserOfPet = true
-				}
-			}
+		petUuid := medicine.PetUUID.String()
+		hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, petUuid)
+		if err != nil {
+			return err
 		}
 
-		if !userIsOwnerOfPet && !userIsSharedUserOfPet {
+		if !hasAccess {
 			return &NoAccessToPetError{
 				UserUid: userUid,
-				PetUuid: petUUID,
+				PetUuid: petUuid,
 			}
 		}
 
-		updatedPet, err := updateFn(ctx, pet)
+		updatedMedicine, err := updateFn(ctx, medicine)
 		if err != nil {
 			return err
 		}
 
-		return tx.Set(documentRef, updatedPet)
+		return tx.Set(documentRef, updatedMedicine)
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update pet")
+		return nil, errors.Wrap(err, "failed to update medicine")
 	}
 
-	userPets, err := r.GetPets(ctx, userUid)
+	petMedicines, err := r.GetMedicines(ctx, userUid, petUuid)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get updated list of the user's pets after pet was updated")
+		return nil, errors.Wrap(err, "failed to get updated list of the pet's medicines after medicine was updated")
 	}
 
-	return userPets, nil
+	return petMedicines, nil
 }
 
 func (r MedicineFirestoreRepository) DeleteMedicine(ctx context.Context, userUid string, medicineUUID string) ([]*Medicine, error) {

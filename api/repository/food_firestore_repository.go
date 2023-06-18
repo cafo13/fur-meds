@@ -93,7 +93,51 @@ func (r FoodFirestoreRepository) GetFoods(ctx context.Context, userUid string, p
 }
 
 func (r FoodFirestoreRepository) UpdateFood(ctx context.Context, userUid string, foodUUID string, updateFn func(ctx context.Context, food *Food) (*Food, error)) ([]*Food, error) {
-	return nil, nil
+	var petUuid string
+	foodsCollection := r.foodsCollection()
+
+	err := r.firestoreClient.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		documentRef := foodsCollection.Doc(foodUUID)
+
+		firestoreFood, err := tx.Get(documentRef)
+		if err != nil {
+			return errors.Wrap(err, "unable to food document for update")
+		}
+
+		food, err := r.unmarshalFood(firestoreFood)
+		if err != nil {
+			return err
+		}
+		petUuid := food.PetUUID.String()
+		hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, petUuid)
+		if err != nil {
+			return err
+		}
+
+		if !hasAccess {
+			return &NoAccessToPetError{
+				UserUid: userUid,
+				PetUuid: petUuid,
+			}
+		}
+
+		updatedFood, err := updateFn(ctx, food)
+		if err != nil {
+			return err
+		}
+
+		return tx.Set(documentRef, updatedFood)
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to update food")
+	}
+
+	petFoods, err := r.GetFoods(ctx, userUid, petUuid)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get updated list of the pet's foods after food was updated")
+	}
+
+	return petFoods, nil
 }
 
 func (r FoodFirestoreRepository) DeleteFood(ctx context.Context, userUid string, foodUUID string) ([]*Food, error) {

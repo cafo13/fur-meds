@@ -17,6 +17,6 @@ type ToDo struct {
 }
 
 type TodoRepository interface {
-	GetToDos(ctx context.Context, userUid string) ([]*ToDo, error)
+	GetToDosForUser(ctx context.Context, userUid string) ([]*ToDo, error)
 	GenerateToDos(ctx context.Context, userUid string) error
 }

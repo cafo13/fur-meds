@@ -947,6 +947,27 @@ func (r Router) GetToDos(ctx *gin.Context) {
 	}
 }
 
+func (r Router) SetToDoStatus(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Methods", "POST")
+
+	user, err := r.AuthMiddleware.UserFromCtx(ctx)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	todos, err := r.TodoHandler.SetToDoStatus(ctx, user.UID)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	} else {
+		ctx.IndentedJSON(http.StatusOK, todos)
+		return
+	}
+}
+
 func (r Router) StartRouter(port string) {
 	r.Router.Use(r.CORSMiddleware.Middleware())
 	r.Router.Use(r.AuthMiddleware.Middleware())
@@ -1007,6 +1028,8 @@ func (r Router) StartRouter(port string) {
 		todos := v1.Group("/todos")
 		{
 			todos.GET("/", r.GetToDos)
+
+			todos.POST("/:uuid/status", r.SetToDoStatus)
 		}
 	}
 

@@ -79,7 +79,7 @@ func main() {
 		PetHandler:      handler.NewPetHandler(petRepository, todoChannel),
 		MedicineHandler: handler.NewMedicineHandler(repository.NewMedicineFirestoreRepository(firestoreClient, petRepository)),
 		FoodHandler:     handler.NewFoodHandler(repository.NewFoodFirestoreRepository(firestoreClient, petRepository)),
-		TodoHandler:     handler.NewTodoHandler(repository.NewTodoFirestoreRepository(firestoreClient), todoChannel),
+		TodoHandler:     handler.NewTodoHandler(repository.NewTodoFirestoreRepository(firestoreClient, petRepository), todoChannel),
 	})
 
 	router.StartRouter(apiPort)

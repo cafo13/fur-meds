@@ -20,5 +20,5 @@ func NewTodoHandler(todoRepository repository.TodoRepository, todoChannel chan s
 }
 
 func (h TodoHandle) GetAllForUser(ctx context.Context, userUid string) ([]*repository.ToDo, error) {
-	return nil, nil
+	return h.todoRepository.GetToDosForUser(ctx, userUid)
 }
