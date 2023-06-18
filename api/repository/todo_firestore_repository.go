@@ -19,10 +19,6 @@ func (r ToDoFirestoreRepository) todosCollection() *firestore.CollectionRef {
 	return r.firestoreClient.Collection("todos")
 }
 
-func (r ToDoFirestoreRepository) GenerateToDos(ctx context.Context, userUid string) error {
-	return nil
-}
-
 func (r ToDoFirestoreRepository) GetToDosForPet(ctx context.Context, petUuid string) ([]*ToDo, error) {
 	petToDoDocuments, err := r.todosCollection().Where("petUuid", "==", petUuid).Documents(ctx).GetAll()
 	if err != nil {

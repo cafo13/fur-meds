@@ -29,5 +29,4 @@ type SetToDoStatusRequest struct {
 
 type TodoRepository interface {
 	GetToDosForPet(ctx context.Context, petUuid string) ([]*ToDo, error)
-	GenerateToDos(ctx context.Context, userUid string) error
 }
