@@ -26,7 +26,7 @@ const (
 )
 
 type AnswerPetShareRequest struct {
-	Answer PetShareAnswer
+	Answer PetShareAnswer `json:"answer"`
 }
 
 type PetShares struct {

@@ -17,10 +17,11 @@ type MedicineHandler interface {
 
 type MedicineHandle struct {
 	medicineRepository repository.MedicineRepository
+	petRepository      repository.PetRepository
 }
 
-func NewMedicineHandler(medicineRepository repository.MedicineRepository) MedicineHandler {
-	return MedicineHandle{medicineRepository}
+func NewMedicineHandler(medicineRepository repository.MedicineRepository, petRepository repository.PetRepository) MedicineHandler {
+	return MedicineHandle{medicineRepository, petRepository}
 }
 
 func (h MedicineHandle) Create(ctx context.Context, userUid string, petUuid string, medicine *repository.Medicine) ([]*repository.Medicine, error) {
@@ -38,10 +39,40 @@ func (h MedicineHandle) Get(ctx context.Context, userUid string, medicineUuid st
 		return nil, err
 	}
 
+	hasAccess, err := h.petRepository.UserHasAccessToPet(ctx, userUid, medicine.PetUUID.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if !hasAccess {
+		return nil, &repository.NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: medicine.PetUUID.String(),
+		}
+	}
+
 	return medicine, nil
 }
 
 func (h MedicineHandle) Update(ctx context.Context, userUid string, medicineUuid string, medicine *repository.Medicine) ([]*repository.Medicine, error) {
+	petUuid := medicine.PetUUID.String()
+	medicine, err := h.medicineRepository.GetMedicine(ctx, userUid, petUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	hasAccess, err := h.petRepository.UserHasAccessToPet(ctx, userUid, petUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if !hasAccess {
+		return nil, &repository.NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: petUuid,
+		}
+	}
+
 	medicines, err := h.medicineRepository.UpdateMedicine(
 		ctx,
 		userUid,
@@ -74,6 +105,23 @@ func (h MedicineHandle) Update(ctx context.Context, userUid string, medicineUuid
 }
 
 func (h MedicineHandle) Delete(ctx context.Context, userUid string, medicineUuid string) ([]*repository.Medicine, error) {
+	medicine, err := h.medicineRepository.GetMedicine(ctx, userUid, medicineUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	hasAccess, err := h.petRepository.UserHasAccessToPet(ctx, userUid, medicine.PetUUID.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if !hasAccess {
+		return nil, &repository.NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: medicine.PetUUID.String(),
+		}
+	}
+
 	return h.medicineRepository.DeleteMedicine(ctx, userUid, medicineUuid)
 }
 

@@ -10,11 +10,10 @@ import (
 
 type FoodFirestoreRepository struct {
 	firestoreClient *firestore.Client
-	petRepository   PetRepository
 }
 
-func NewFoodFirestoreRepository(firestoreClient *firestore.Client, petRepository PetRepository) FoodRepository {
-	return FoodFirestoreRepository{firestoreClient, petRepository}
+func NewFoodFirestoreRepository(firestoreClient *firestore.Client) FoodRepository {
+	return FoodFirestoreRepository{firestoreClient}
 }
 
 func (r FoodFirestoreRepository) foodsCollection() *firestore.CollectionRef {
@@ -54,24 +53,7 @@ func (r FoodFirestoreRepository) GetFood(ctx context.Context, userUid string, fo
 		return nil, errors.Wrapf(err, "failed to get pet food with UUID '%s'", foodUUID)
 	}
 
-	food, err := r.unmarshalFood(firestoreFood)
-	if err != nil {
-		return nil, err
-	}
-
-	hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, food.PetUUID.String())
-	if err != nil {
-		return nil, err
-	}
-
-	if !hasAccess {
-		return nil, &NoAccessToPetError{
-			UserUid: userUid,
-			PetUuid: food.PetUUID.String(),
-		}
-	}
-
-	return food, nil
+	return r.unmarshalFood(firestoreFood)
 }
 
 func (r FoodFirestoreRepository) GetFoods(ctx context.Context, userUid string, petUuid string) ([]*Food, error) {
@@ -108,18 +90,7 @@ func (r FoodFirestoreRepository) UpdateFood(ctx context.Context, userUid string,
 		if err != nil {
 			return err
 		}
-		petUuid := food.PetUUID.String()
-		hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, petUuid)
-		if err != nil {
-			return err
-		}
-
-		if !hasAccess {
-			return &NoAccessToPetError{
-				UserUid: userUid,
-				PetUuid: petUuid,
-			}
-		}
+		petUuid = food.PetUUID.String()
 
 		updatedFood, err := updateFn(ctx, food)
 		if err != nil {
@@ -149,18 +120,6 @@ func (r FoodFirestoreRepository) DeleteFood(ctx context.Context, userUid string,
 	food, err := r.unmarshalFood(firestoreFood)
 	if err != nil {
 		return nil, err
-	}
-
-	hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, food.PetUUID.String())
-	if err != nil {
-		return nil, err
-	}
-
-	if !hasAccess {
-		return nil, &NoAccessToPetError{
-			UserUid: userUid,
-			PetUuid: food.PetUUID.String(),
-		}
 	}
 
 	_, err = r.foodsCollection().Doc(foodUUID).Delete(ctx)

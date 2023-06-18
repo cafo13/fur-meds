@@ -77,9 +77,9 @@ func main() {
 	petRepository := repository.NewPetFirestoreRepository(firestoreClient)
 	router := setupRouter(authMiddleware, &corsMiddleware, &router.HandlerSet{
 		PetHandler:      handler.NewPetHandler(petRepository, todoChannel),
-		MedicineHandler: handler.NewMedicineHandler(repository.NewMedicineFirestoreRepository(firestoreClient, petRepository)),
-		FoodHandler:     handler.NewFoodHandler(repository.NewFoodFirestoreRepository(firestoreClient, petRepository)),
-		TodoHandler:     handler.NewTodoHandler(repository.NewTodoFirestoreRepository(firestoreClient, petRepository), todoChannel),
+		MedicineHandler: handler.NewMedicineHandler(repository.NewMedicineFirestoreRepository(firestoreClient), petRepository),
+		FoodHandler:     handler.NewFoodHandler(repository.NewFoodFirestoreRepository(firestoreClient), petRepository),
+		TodoHandler:     handler.NewTodoHandler(repository.NewTodoFirestoreRepository(firestoreClient), petRepository, todoChannel),
 	})
 
 	router.StartRouter(apiPort)

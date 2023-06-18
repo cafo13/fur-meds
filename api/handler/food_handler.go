@@ -17,10 +17,11 @@ type FoodHandler interface {
 
 type FoodHandle struct {
 	foodRepository repository.FoodRepository
+	petRepository  repository.PetRepository
 }
 
-func NewFoodHandler(foodRepository repository.FoodRepository) FoodHandler {
-	return FoodHandle{foodRepository}
+func NewFoodHandler(foodRepository repository.FoodRepository, petRepository repository.PetRepository) FoodHandler {
+	return FoodHandle{foodRepository, petRepository}
 }
 
 func (h FoodHandle) Create(ctx context.Context, userUid string, petUuid string, food *repository.Food) ([]*repository.Food, error) {
@@ -38,10 +39,40 @@ func (h FoodHandle) Get(ctx context.Context, userUid string, foodUuid string) (*
 		return nil, err
 	}
 
+	hasAccess, err := h.petRepository.UserHasAccessToPet(ctx, userUid, food.PetUUID.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if !hasAccess {
+		return nil, &repository.NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: food.PetUUID.String(),
+		}
+	}
+
 	return food, nil
 }
 
 func (h FoodHandle) Update(ctx context.Context, userUid string, foodUuid string, food *repository.Food) ([]*repository.Food, error) {
+	food, err := h.foodRepository.GetFood(ctx, userUid, foodUuid)
+	if err != nil {
+		return nil, err
+	}
+	petUuid := food.PetUUID.String()
+
+	hasAccess, err := h.petRepository.UserHasAccessToPet(ctx, userUid, petUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if !hasAccess {
+		return nil, &repository.NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: petUuid,
+		}
+	}
+
 	foods, err := h.foodRepository.UpdateFood(
 		ctx,
 		userUid,
@@ -74,6 +105,24 @@ func (h FoodHandle) Update(ctx context.Context, userUid string, foodUuid string,
 }
 
 func (h FoodHandle) Delete(ctx context.Context, userUid string, foodUuid string) ([]*repository.Food, error) {
+	food, err := h.foodRepository.GetFood(ctx, userUid, foodUuid)
+	if err != nil {
+		return nil, err
+	}
+	petUuid := food.PetUUID.String()
+
+	hasAccess, err := h.petRepository.UserHasAccessToPet(ctx, userUid, petUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	if !hasAccess {
+		return nil, &repository.NoAccessToPetError{
+			UserUid: userUid,
+			PetUuid: petUuid,
+		}
+	}
+
 	return h.foodRepository.DeleteFood(ctx, userUid, foodUuid)
 }
 

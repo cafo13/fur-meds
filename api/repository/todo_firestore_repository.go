@@ -9,39 +9,44 @@ import (
 
 type ToDoFirestoreRepository struct {
 	firestoreClient *firestore.Client
-	petRepository   PetRepository
 }
 
-func NewTodoFirestoreRepository(firestoreClient *firestore.Client, petRepository PetRepository) TodoRepository {
-	return ToDoFirestoreRepository{firestoreClient, petRepository}
+func NewTodoFirestoreRepository(firestoreClient *firestore.Client) TodoRepository {
+	return ToDoFirestoreRepository{firestoreClient}
 }
 
 func (r ToDoFirestoreRepository) todosCollection() *firestore.CollectionRef {
 	return r.firestoreClient.Collection("todos")
 }
 
-func (r ToDoFirestoreRepository) GetToDosForUser(ctx context.Context, userUid string) ([]*ToDo, error) {
-	userPets, err := r.petRepository.GetPets(ctx, userUid)
-	if err != nil {
-		return nil, err
-	}
-
-	userTodos := []*ToDo{}
-	for _, pet := range userPets {
-		petToDos, err := r.getToDosForPet(ctx, pet.UUID.String())
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to get todos for pet %s", pet.UUID.String())
-		}
-		userTodos = append(userTodos, petToDos...)
-	}
-
-	return userTodos, nil
-}
-
 func (r ToDoFirestoreRepository) GenerateToDos(ctx context.Context, userUid string) error {
 	return nil
 }
 
-func (r ToDoFirestoreRepository) getToDosForPet(ctx context.Context, userUid string) ([]*ToDo, error) {
-	return nil, nil
+func (r ToDoFirestoreRepository) GetToDosForPet(ctx context.Context, petUuid string) ([]*ToDo, error) {
+	petToDoDocuments, err := r.todosCollection().Where("petUuid", "==", petUuid).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get all todos for pet %s", petUuid)
+	}
+
+	petToDos := []*ToDo{}
+	for _, todo := range petToDoDocuments {
+		unmarshaledToDo, err := r.unmarshalToDo(todo)
+		if err != nil {
+			return nil, err
+		}
+		petToDos = append(petToDos, unmarshaledToDo)
+	}
+
+	return petToDos, nil
+}
+
+func (r ToDoFirestoreRepository) unmarshalToDo(doc *firestore.DocumentSnapshot) (*ToDo, error) {
+	ToDoModel := ToDo{}
+	err := doc.DataTo(&ToDoModel)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to unmarshal document to todo object")
+	}
+
+	return &ToDoModel, nil
 }

@@ -950,6 +950,15 @@ func (r Router) GetToDos(ctx *gin.Context) {
 func (r Router) SetToDoStatus(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Methods", "POST")
 
+	setToDoStatusRequest := &repository.SetToDoStatusRequest{}
+	err := ctx.BindJSON(&setToDoStatusRequest)
+	if err != nil {
+		wrappedError := errors.Wrap(err, "error on getting set todo status request from json body")
+		log.Error(wrappedError)
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": wrappedError})
+		return
+	}
+
 	user, err := r.AuthMiddleware.UserFromCtx(ctx)
 	if err != nil {
 		log.Error(err)
@@ -957,7 +966,7 @@ func (r Router) SetToDoStatus(ctx *gin.Context) {
 		return
 	}
 
-	todos, err := r.TodoHandler.SetToDoStatus(ctx, user.UID)
+	todos, err := r.TodoHandler.SetToDoStatus(ctx, user.UID, setToDoStatusRequest.NewStatus)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})

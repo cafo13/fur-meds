@@ -10,11 +10,10 @@ import (
 
 type MedicineFirestoreRepository struct {
 	firestoreClient *firestore.Client
-	petRepository   PetRepository
 }
 
-func NewMedicineFirestoreRepository(firestoreClient *firestore.Client, petRepository PetRepository) MedicineRepository {
-	return MedicineFirestoreRepository{firestoreClient, petRepository}
+func NewMedicineFirestoreRepository(firestoreClient *firestore.Client) MedicineRepository {
+	return MedicineFirestoreRepository{firestoreClient}
 }
 
 func (r MedicineFirestoreRepository) medicinesCollection() *firestore.CollectionRef {
@@ -54,24 +53,7 @@ func (r MedicineFirestoreRepository) GetMedicine(ctx context.Context, userUid st
 		return nil, errors.Wrapf(err, "failed to get pet medicine with UUID '%s'", medicineUUID)
 	}
 
-	medicine, err := r.unmarshalMedicine(firestoreMedicine)
-	if err != nil {
-		return nil, err
-	}
-
-	hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, medicine.PetUUID.String())
-	if err != nil {
-		return nil, err
-	}
-
-	if !hasAccess {
-		return nil, &NoAccessToPetError{
-			UserUid: userUid,
-			PetUuid: medicine.PetUUID.String(),
-		}
-	}
-
-	return medicine, nil
+	return r.unmarshalMedicine(firestoreMedicine)
 }
 
 func (r MedicineFirestoreRepository) GetMedicines(ctx context.Context, userUid string, petUuid string) ([]*Medicine, error) {
@@ -108,18 +90,7 @@ func (r MedicineFirestoreRepository) UpdateMedicine(ctx context.Context, userUid
 		if err != nil {
 			return err
 		}
-		petUuid := medicine.PetUUID.String()
-		hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, petUuid)
-		if err != nil {
-			return err
-		}
-
-		if !hasAccess {
-			return &NoAccessToPetError{
-				UserUid: userUid,
-				PetUuid: petUuid,
-			}
-		}
+		petUuid = medicine.PetUUID.String()
 
 		updatedMedicine, err := updateFn(ctx, medicine)
 		if err != nil {
@@ -149,18 +120,6 @@ func (r MedicineFirestoreRepository) DeleteMedicine(ctx context.Context, userUid
 	medicine, err := r.unmarshalMedicine(firestoreMedicine)
 	if err != nil {
 		return nil, err
-	}
-
-	hasAccess, err := r.petRepository.UserHasAccessToPet(ctx, userUid, medicine.PetUUID.String())
-	if err != nil {
-		return nil, err
-	}
-
-	if !hasAccess {
-		return nil, &NoAccessToPetError{
-			UserUid: userUid,
-			PetUuid: medicine.PetUUID.String(),
-		}
 	}
 
 	_, err = r.medicinesCollection().Doc(medicineUUID).Delete(ctx)

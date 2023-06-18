@@ -7,16 +7,27 @@ import (
 	"github.com/google/uuid"
 )
 
+type ToDoStatus string
+
+const (
+	TODO_STATUS_OPEN ToDoStatus = "Open"
+	TODO_STATUS_DONE ToDoStatus = "Done"
+)
+
 type ToDo struct {
-	UUID        uuid.UUID `firestore:"uuid" json:"uuid"`
-	UserUID     string    `firestore:"userUid" json:"userUid"`
-	PetUUID     uuid.UUID `firestore:"petUuid" json:"petUuid"`
-	Text        string    `firestore:"text" json:"text"`
-	Done        bool      `firestore:"done" json:"done"`
-	DeleteAfter time.Time `firestore:"deleteAfter" json:"deleteAfter"`
+	UUID        uuid.UUID  `firestore:"uuid" json:"uuid"`
+	UserUID     string     `firestore:"userUid" json:"userUid"`
+	PetUUID     uuid.UUID  `firestore:"petUuid" json:"petUuid"`
+	Text        string     `firestore:"text" json:"text"`
+	Status      ToDoStatus `firestore:"status" json:"status"`
+	DeleteAfter time.Time  `firestore:"deleteAfter" json:"deleteAfter"`
+}
+
+type SetToDoStatusRequest struct {
+	NewStatus ToDoStatus `json:"newStatus"`
 }
 
 type TodoRepository interface {
-	GetToDosForUser(ctx context.Context, userUid string) ([]*ToDo, error)
+	GetToDosForPet(ctx context.Context, petUuid string) ([]*ToDo, error)
 	GenerateToDos(ctx context.Context, userUid string) error
 }
